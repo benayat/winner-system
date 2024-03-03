@@ -12,26 +12,26 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class UserController {
 
-    private final UserProfileService userProfileService;
+    private final UserProfileService userProfileServiceImpl;
 
     @PostMapping("/signup")
     public UserProfile createUser(@RequestBody UserProfile userprofile) {
-        return userProfileService.createUserProfile(userprofile);
+        return userProfileServiceImpl.createUserProfile(userprofile);
     }
     @PutMapping("/update-email")
     @PreAuthorize("#email == authentication.principal.username")
     public UserProfile updateEmail(@AuthenticationPrincipal String email, @RequestParam("new-email") String newEmail) {
-        return userProfileService.updateEmail(email, newEmail);
+        return userProfileServiceImpl.updateEmail(email, newEmail);
     }
     @PutMapping("/update-username")
     @PreAuthorize("#email == authentication.principal.username")
     public UserProfile updateUsername(@AuthenticationPrincipal String email, @RequestParam("new-username") String newUserName) {
-        return userProfileService.updateUserName(email, newUserName);
+        return userProfileServiceImpl.updateUserName(email, newUserName);
     }
     @DeleteMapping("/delete")
     @PreAuthorize("#email == authentication.principal.username")
     public void deleteUser(@AuthenticationPrincipal String email) {
-        userProfileService.deleteUserProfile(email);
+        userProfileServiceImpl.deleteUserProfile(email);
     }
 
 

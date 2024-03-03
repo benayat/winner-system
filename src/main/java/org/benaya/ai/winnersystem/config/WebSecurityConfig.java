@@ -1,7 +1,7 @@
 package org.benaya.ai.winnersystem.config;
 
 import lombok.RequiredArgsConstructor;
-import org.benaya.ai.winnersystem.service.CustomJpaUserDetailsService;
+import org.benaya.ai.winnersystem.service.impl.CustomJpaUserDetailsServiceImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -18,7 +18,7 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableGlobalAuthentication
 @RequiredArgsConstructor
 public class WebSecurityConfig {
-    private final CustomJpaUserDetailsService userDetailsService;
+    private final CustomJpaUserDetailsServiceImpl userDetailsService;
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http.authorizeHttpRequests(authorize -> authorize

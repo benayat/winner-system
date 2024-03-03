@@ -11,8 +11,6 @@ services:
     depends_on:
       posegres_db:
         condition: service_healthy
-    volumes:
-      - ./src/main/resources/clients.csv:/app/clients.csv
   posegres_db:
     container_name: "posegres_db"
     image: "postgres:13.3"

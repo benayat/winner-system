@@ -1,4 +1,4 @@
-package org.benaya.ai.winnersystem.service;
+package org.benaya.ai.winnersystem.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.benaya.ai.winnersystem.model.UserProfile;
@@ -13,7 +13,7 @@ import java.util.Collections;
 
 @Service
 @RequiredArgsConstructor
-public class CustomJpaUserDetailsService implements UserDetailsService {
+public class CustomJpaUserDetailsServiceImpl implements UserDetailsService {
     private final UserProfileRepository userProfileRepository;
 
     @Override
