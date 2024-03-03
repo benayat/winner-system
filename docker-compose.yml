@@ -1,0 +1,24 @@
+version: "3.7"
+services:
+  winner-system-backend:
+    container_name: "winner-system-backend"
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: "on-failure"
+    ports:
+      - "8080:8080"
+    depends_on:
+      posegres_db:
+        condition: service_healthy
+    volumes:
+      - ./src/main/resources/clients.csv:/app/clients.csv
+  posegres_db:
+    container_name: "posegres_db"
+    image: "postgres:13.3"
+    restart: "unless-stopped"
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: 123456
