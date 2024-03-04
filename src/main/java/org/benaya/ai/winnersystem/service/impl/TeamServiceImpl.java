@@ -27,4 +27,10 @@ public class TeamServiceImpl implements TeamService {
     public void saveAll(List<Team> teams) {
         teamRepository.saveAll(teams);
     }
+
+    @Override
+    public List<Team> getAllTeamsSortedByPointsDescGoalsDescName() {
+        return teamRepository.getAllTeamsSortedByPointsDescGoalsDescName();
+    }
+
 }

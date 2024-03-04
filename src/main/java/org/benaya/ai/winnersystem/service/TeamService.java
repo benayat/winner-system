@@ -9,5 +9,6 @@ public interface TeamService {
     List<Team> findAllTeams();
 
     void saveAll(List<Team> teams);
+    List<Team> getAllTeamsSortedByPointsDescGoalsDescName();
 
 }
