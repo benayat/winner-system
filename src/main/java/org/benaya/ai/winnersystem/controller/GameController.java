@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/game")
+@RequestMapping("/api/game")
 public class GameController {
     private final ResultsGeneratorService resultsGeneratorService;
     @PutMapping("/start")

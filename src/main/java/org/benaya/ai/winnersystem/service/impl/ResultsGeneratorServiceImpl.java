@@ -1,9 +1,12 @@
 package org.benaya.ai.winnersystem.service.impl;
 
 import org.benaya.ai.winnersystem.model.*;
+import org.benaya.ai.winnersystem.model.events.ChancesEvent;
+import org.benaya.ai.winnersystem.model.events.GoalCycleEvent;
 import org.benaya.ai.winnersystem.service.ResultsGeneratorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.task.SimpleAsyncTaskSchedulerBuilder;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.scheduling.TriggerContext;
 import org.springframework.scheduling.concurrent.SimpleAsyncTaskScheduler;
 import org.springframework.stereotype.Service;
@@ -23,15 +26,15 @@ public class ResultsGeneratorServiceImpl implements ResultsGeneratorService {
     private final RandomGenerator randomGenerator = RandomGenerator.getDefault();
     private final int numberOfTeams;
     private final Set<List<Match>> periods;
-    private final WebsocketPublishServiceImpl websocketPublishService;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     @Autowired
-    public ResultsGeneratorServiceImpl(TeamServiceImpl teamService, WebsocketPublishServiceImpl websocketPublishService) {
-        this.websocketPublishService = websocketPublishService;
+    public ResultsGeneratorServiceImpl(TeamServiceImpl teamService, ApplicationEventPublisher applicationEventPublisher) {
         this.teamService = teamService;
         List<Team> teams = teamService.findAllTeams();
         this.numberOfTeams = teams.size();
         this.periods = generateMatchUps(teams);
+        this.applicationEventPublisher = applicationEventPublisher;
     }
 
     public void startSeason() {
@@ -42,7 +45,7 @@ public class ResultsGeneratorServiceImpl implements ResultsGeneratorService {
             for (List<Match> period : periods) {
                 Map<Match, MatchChances> matchToChances = period.stream().map(match -> Map.entry(match, getMatchChances(match.team1(), match.team2())))
                         .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-                websocketPublishService.publishChancesForPeriodGamesToUI(matchToChances);
+                this.applicationEventPublisher.publishEvent(new ChancesEvent(matchToChances));
                 scheduler.wait(30000);
                 scheduler.schedule(() -> runOnePeriod(period), TriggerContext::lastCompletion);
             }
@@ -69,7 +72,7 @@ public class ResultsGeneratorServiceImpl implements ResultsGeneratorService {
                         matchToScorers.putIfAbsent(match, new ArrayList<>());
                         matchToScorers.get(match).add(scorer);
                     });
-                    websocketPublishService.publishGoalCycleResultsToUI(getTempResults(matchToScorers));
+                    this.applicationEventPublisher.publishEvent(new GoalCycleEvent(getTempResults(matchToScorers)));
                 } else {
                     scheduler.close();
 
@@ -131,7 +134,6 @@ public class ResultsGeneratorServiceImpl implements ResultsGeneratorService {
             team1.setSkillLevel(team1.getSkillLevel() - SKILL_MODIFIER_STEP + team1.getPoints() * SKILL_MODIFIER_STEP);
             team2.setSkillLevel(team2.getSkillLevel() - SKILL_MODIFIER_STEP + team2.getPoints() * SKILL_MODIFIER_STEP);
             team1.setInjuries(randomGenerator.nextInt(6));
-//            websocketPublishService.publishMatchResultsToUI();
         });
     }
     private Set<List<Match>> generateMatchUps(List<Team> teams) {

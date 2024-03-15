@@ -13,7 +13,6 @@ public enum Scorer {
     TEAM2("TEAM2"),
     NONE("NONE");
 
-
     private final String value;
     private static final Map<String, Scorer> lookup = new HashMap<>();
 

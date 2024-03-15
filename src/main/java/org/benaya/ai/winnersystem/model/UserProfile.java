@@ -1,10 +1,6 @@
 package org.benaya.ai.winnersystem.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.ElementCollection;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-
+import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import lombok.Data;
 import org.benaya.ai.winnersystem.validate.annotations.ValidPassword;
@@ -23,6 +19,6 @@ public class UserProfile {
     @Column(nullable = false)
     @ValidPassword
     private String password;
-    @ElementCollection
-    private List<String> statistics;
+    @OneToMany(mappedBy = "userProfile", cascade = CascadeType.ALL)
+    List<Bet> bets;
 }

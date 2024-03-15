@@ -1,71 +1,53 @@
 package org.benaya.ai.winnersystem.config;
 
 import lombok.RequiredArgsConstructor;
+import org.benaya.ai.winnersystem.hander.SseLogoutHandler;
 import org.benaya.ai.winnersystem.service.impl.CustomJpaUserDetailsServiceImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.config.annotation.authentication.configuration.EnableGlobalAuthentication;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 @EnableWebSecurity
-@EnableGlobalAuthentication
+@EnableMethodSecurity(prePostEnabled = false)
 @RequiredArgsConstructor
 public class WebSecurityConfig {
     private final CustomJpaUserDetailsServiceImpl userDetailsService;
+    private final SseLogoutHandler sseLogoutHandler;
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http.authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/index").permitAll()
-                        .requestMatchers("/client/byEmail", "/client/byId", "/client/byFirstName", "/client/byPhone").hasAnyRole("USER", "ADMIN")
-                        .requestMatchers("/client/add", "/client/delete").hasRole("ADMIN")
-                        .anyRequest()
-                        .authenticated())
+                        .requestMatchers("/api/user/signup", "/login").permitAll())
                 .formLogin(formLogin -> formLogin
                         .loginProcessingUrl("/login")
-                        .defaultSuccessUrl("/")
+                        .successHandler((request, response, authentication) -> response.setStatus(200))
                         .permitAll())
+                .csrf(AbstractHttpConfigurer::disable)
                 .logout(logout -> logout
-                        .logoutSuccessUrl("/"))
+                        .logoutSuccessUrl("/")
+                        .addLogoutHandler(sseLogoutHandler)
+                )
                 .build();
     }
+
     @Bean
     public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
         AuthenticationManagerBuilder authenticationManagerBuilder = http.getSharedObject(AuthenticationManagerBuilder.class);
-        authenticationManagerBuilder.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
+        authenticationManagerBuilder
+                .userDetailsService(userDetailsService)
+                .passwordEncoder(passwordEncoder());
         return authenticationManagerBuilder.build();
     }
 
-//    @Bean
-//    UserDetailsManager usersDetailsManager(DataSource dataSource) {
-//        UserDetails admin = User.builder()
-//                .username("admin")
-//                .password("{bcrypt}$2a$10$GRLdNijSQMUvl/au9ofL.eDwmoohzzS7.rmNSJZ.0FxO/BTk76klW")
-//                .roles("USER", "ADMIN")
-//                .build();
-//        JdbcUserDetailsManager usersManager = new JdbcUserDetailsManager(dataSource);
-//        usersManager.createUser(admin);
-//        return usersManager;
-//    }
-
-//    @Bean
-//    public InMemoryUserDetailsManager userDetailsManager() {
-//        return new InMemoryUserDetailsManager(
-//                User.withUsername("user")
-//                        .password(passwordEncoder().encode("userpass"))
-//                        .roles("USER")
-//                        .build(),
-//                User.withUsername("admin")
-//                        .password(passwordEncoder().encode("adminpass"))
-//                        .roles("ADMIN")
-//                        .build());
-//    }
     @Bean
     public PasswordEncoder passwordEncoder() {
         return PasswordEncoderFactories.createDelegatingPasswordEncoder();

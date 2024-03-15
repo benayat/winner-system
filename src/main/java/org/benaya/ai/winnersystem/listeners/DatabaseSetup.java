@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -35,7 +36,7 @@ public class DatabaseSetup {
     @EventListener
     public void loadTeamsData(ContextRefreshedEvent event) {
         // Load teams data from csv file
-        try (Reader reader = Files.newBufferedReader(Paths.get(csvFilePath));
+        try (Reader reader = Files.newBufferedReader(Paths.get(new ClassPathResource(csvFilePath).getURI()));
              CSVParser csvParser = new CSVParser(reader, CSVFormat.DEFAULT
                      .builder()
                      .setHeader().setSkipHeaderRecord(true)
@@ -53,8 +54,8 @@ public class DatabaseSetup {
                         .injuries(randomGenerator.nextInt(0, 3))
                         .build();
                 tempTeamsList.add(client);
-                teamService.saveAll(tempTeamsList);
             }
+            teamService.saveAll(tempTeamsList);
         } catch (
                 IOException e) {
             throw new RuntimeException(e);

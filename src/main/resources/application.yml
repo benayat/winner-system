@@ -3,7 +3,8 @@ spring:
     database: POSTGRESQL
     show-sql: true
     hibernate:
-      ddl-auto: ${SPRING_JPA_HIBERNATE_DDL-AUTO:validate}
+#      ddl-auto: ${SPRING_JPA_HIBERNATE_DDL-AUTO:validate}
+      ddl-auto: ${SPRING_JPA_HIBERNATE_DDL-AUTO:create-drop}
   datasource:
     url: jdbc:postgresql://localhost:5432/mydb
     username: root
@@ -13,5 +14,10 @@ spring:
     init:
       platform: postgres
 database:
-  init: ${DATABASE_INIT:false}
+  init: ${DATABASE_INIT:true}
   teams_data: ${TEAMS_DATA_PATH:teams.csv}
+logging:
+  level:
+    org:
+      springframework:
+        security: DEBUG

@@ -1,4 +1,17 @@
 package org.benaya.ai.winnersystem.model;
 
-public record Bet(String teamName, int betAmount) {
+import jakarta.persistence.*;
+import lombok.Data;
+
+@Entity
+@Data
+public class Bet{
+    @Id
+    @EmbeddedId
+    private BetId betId;
+    @ManyToOne
+    @MapsId("userName")
+    private UserProfile userProfile;
+    private String teamName;
+    int betAmount;
 }
