@@ -17,8 +17,12 @@ import java.util.stream.Collectors;
 @RestControllerAdvice
 public class AppExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(ConstraintViolationException.class)
-    public ProblemDetail handleNoClientsFoundException(ConstraintViolationException e) {
+    public ProblemDetail handleValidationException(ConstraintViolationException e) {
         return ProblemDetail.forStatusAndDetail(HttpStatus.UNPROCESSABLE_ENTITY, e.getMessage());
+    }
+    @ExceptionHandler(BetsAreBlockedException.class)
+    public ProblemDetail handleBetsAreBlockedException(BetsAreBlockedException e) {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.LOCKED, e.getMessage());
     }
 
     @Override

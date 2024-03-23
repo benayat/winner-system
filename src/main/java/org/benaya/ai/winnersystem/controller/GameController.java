@@ -1,9 +1,8 @@
 package org.benaya.ai.winnersystem.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.benaya.ai.winnersystem.service.ResultsGeneratorService;
+import org.benaya.ai.winnersystem.service.GameRunnerService;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -11,9 +10,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/game")
 public class GameController {
-    private final ResultsGeneratorService resultsGeneratorService;
+    private final GameRunnerService gameRunnerService;
     @PostMapping("/start")
     public void startGame() {
-        resultsGeneratorService.startSeason();
+        gameRunnerService.startGame();
     }
 }

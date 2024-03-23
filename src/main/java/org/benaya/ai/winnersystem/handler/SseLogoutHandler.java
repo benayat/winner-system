@@ -1,4 +1,4 @@
-package org.benaya.ai.winnersystem.hander;
+package org.benaya.ai.winnersystem.handler;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -14,6 +14,6 @@ public class SseLogoutHandler implements LogoutHandler {
     private final SseFactory sseFactory;
     @Override
     public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
-        sseFactory.removeEmitter(authentication.getName());
+        sseFactory.removeSecureEmitter(authentication.getName());
     }
 }

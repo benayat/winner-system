@@ -1,17 +1,18 @@
 package org.benaya.ai.winnersystem.model.events;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.benaya.ai.winnersystem.model.Match;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 import org.benaya.ai.winnersystem.model.MatchChances;
 
-import java.util.Map;
+import java.util.List;
 
 
-@Data
+@EqualsAndHashCode(callSuper = true)
+@Getter
+@Setter
 @AllArgsConstructor
-@NoArgsConstructor
-public class ChancesEvent {
-    private Map<Match, MatchChances> matchChances;
+public class ChancesEvent extends SseEvent {
+    private List<MatchChances> matchChances;
 }

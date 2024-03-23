@@ -1,4 +1,7 @@
 spring:
+  threads:
+    virtual:
+      enabled: true
   jpa:
     database: POSTGRESQL
     show-sql: true
@@ -21,3 +24,12 @@ logging:
     org:
       springframework:
         security: DEBUG
+      benaya:
+        ai:
+          winnersystem:
+            service:
+              impl: DEBUG
+game:
+  num_teams: ${GAME_NUM_TEAMS:10}
+  number_of_goal_events_per_game: ${GAME_NUM_GOAL_EVENTS:5}
+  break_between_periods_in_seconds: ${GAME_BREAK_BETWEEN_PERIODS:60}

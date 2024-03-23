@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.random.RandomGenerator;
 
-@Component
+@Component("databaseSetup")
 @RequiredArgsConstructor
 @ConditionalOnProperty(name = "database.init", havingValue = "true")
 @Slf4j

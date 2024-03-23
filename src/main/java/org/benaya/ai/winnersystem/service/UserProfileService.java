@@ -13,4 +13,5 @@ public interface UserProfileService {
     UserProfile updateEmail(String email, String newEmail);
     UserProfile updateUserName(String email, String newUserName);
     void deleteUserProfile(String email);
+    UserProfile updateBetsAndBalance(Bet bet, UserProfile userProfile);
 }

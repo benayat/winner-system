@@ -21,4 +21,6 @@ public class UserProfile {
     private String password;
     @OneToMany(mappedBy = "userProfile", cascade = CascadeType.ALL)
     List<Bet> bets;
+    @Column(nullable = false)
+    private int balance = 1000;
 }
