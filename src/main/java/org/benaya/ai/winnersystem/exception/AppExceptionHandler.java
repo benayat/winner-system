@@ -24,6 +24,10 @@ public class AppExceptionHandler extends ResponseEntityExceptionHandler {
     public ProblemDetail handleBetsAreBlockedException(BetsAreBlockedException e) {
         return ProblemDetail.forStatusAndDetail(HttpStatus.LOCKED, e.getMessage());
     }
+    @ExceptionHandler(LowBalanceException.class)
+    public ProblemDetail handleLowBalanceException(LowBalanceException e) {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.PRECONDITION_FAILED, e.getMessage());
+    }
 
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, @Nonnull HttpHeaders headers, @Nonnull HttpStatusCode status, @Nonnull WebRequest request) {
