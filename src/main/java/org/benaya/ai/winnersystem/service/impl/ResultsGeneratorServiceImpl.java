@@ -3,6 +3,7 @@ package org.benaya.ai.winnersystem.service.impl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.benaya.ai.winnersystem.model.*;
+import org.benaya.ai.winnersystem.service.BetsService;
 import org.benaya.ai.winnersystem.service.ResultsGeneratorService;
 import org.benaya.ai.winnersystem.service.UserProfileService;
 import org.springframework.stereotype.Service;
@@ -21,6 +22,7 @@ public class ResultsGeneratorServiceImpl implements ResultsGeneratorService {
     private final TeamServiceImpl teamService;
     private final RandomGenerator randomGenerator = RandomGenerator.getDefault();
     private final UserProfileService userProfileService;
+    private final BetsService betsService;
 
 
     public Set<List<Match>> generateMatchUps() {
@@ -164,7 +166,7 @@ public class ResultsGeneratorServiceImpl implements ResultsGeneratorService {
                 userProfileService.saveAll(usersBetOnTie);
             }
         });
-
+        betsService.deleteAllBets();
     }
 
 }

@@ -21,5 +21,4 @@ public class BetsController {
     public void placeBets(@AuthenticationPrincipal String email, @RequestBody List<ClientBet> bets) {
         betsService.placeBets(email, bets);
     }
-
 }

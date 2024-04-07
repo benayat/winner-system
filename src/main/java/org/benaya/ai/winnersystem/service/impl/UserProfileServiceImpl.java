@@ -24,11 +24,13 @@ public class UserProfileServiceImpl implements UserProfileService {
     public UserProfile createUserProfile(UserProfile userProfile) {
         return userProfileRepository.save(userProfile);
     }
+
     public UserProfile updateEmail(String email, String newEmail) {
         UserProfile currentSavedUser = userProfileRepository.findByEmail(email).orElseThrow();
         currentSavedUser.setEmail(newEmail);
         return userProfileRepository.save(currentSavedUser);
     }
+
     public UserProfile updateUserName(String email, String newUserName) {
         UserProfile currentSavedUser = userProfileRepository.findByEmail(email).orElseThrow();
         currentSavedUser.setUserName(newUserName);
@@ -36,21 +38,29 @@ public class UserProfileServiceImpl implements UserProfileService {
     }
 
     public void placeBetsForPeriod(List<Bet> bets, String userEmail) {
+
         int betsAmount = bets.stream().mapToInt(Bet::getBetAmount).sum();
         UserProfile userProfile = userProfileRepository.findByEmail(userEmail).orElseThrow();
-        if(userProfile.getBalance() < betsAmount) {
+        if (!userProfile.getBets().isEmpty()) {
+            int amountToRestore = userProfile.getBets().stream().mapToInt(Bet::getBetAmount).sum();
+            userProfile.setBalance(userProfile.getBalance() + amountToRestore);
+        }
+        if (userProfile.getBalance() < betsAmount) {
             throw new LowBalanceException();
         }
         userProfile.setBets(bets);
         userProfile.setBalance(userProfile.getBalance() - betsAmount);
         userProfileRepository.save(userProfile);
     }
+
     public void deleteUserProfile(String email) {
         userProfileRepository.deleteByEmail(email);
     }
+
     public List<UserProfile> getAllByBets_BetId_Team1NameAndBets_BetId_Team2NameAndWinnerName(String team1Name, String team2Name, Winner winner) {
         return userProfileRepository.getAllByBets_BetId_Team1NameAndBets_BetId_Team2NameAndBets_Winner(team1Name, team2Name, winner);
     }
+
     public void saveAll(List<UserProfile> userProfiles) {
         userProfileRepository.saveAll(userProfiles);
     }

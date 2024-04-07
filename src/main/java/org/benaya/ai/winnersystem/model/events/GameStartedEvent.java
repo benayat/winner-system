@@ -1,14 +1,14 @@
 package org.benaya.ai.winnersystem.model.events;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
+import org.benaya.ai.winnersystem.model.Match;
 
-@EqualsAndHashCode(callSuper = true)
+import java.util.List;
+
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class GameStartedEvent extends SseEvent{
-    public GameStartedEvent() {
-        super(EventType.GAME_STARTED_EVENT);
-    }
+    private List<Match> allMatches;
 }
