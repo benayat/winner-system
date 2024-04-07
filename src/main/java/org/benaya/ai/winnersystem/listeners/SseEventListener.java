@@ -8,7 +8,7 @@ import org.benaya.ai.winnersystem.model.BetId;
 import org.benaya.ai.winnersystem.model.Match;
 import org.benaya.ai.winnersystem.model.MatchChances;
 import org.benaya.ai.winnersystem.model.events.*;
-import org.benaya.ai.winnersystem.service.UserProfileService;
+import org.benaya.ai.winnersystem.service.BetsService;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
@@ -22,8 +22,7 @@ import java.util.List;
 public class SseEventListener {
 
     private final SseFactory sseFactory;
-    private final UserProfileService userProfileService;
-
+    private final BetsService betsService;
 
     @EventListener(SseEvent.class)
     @Async
@@ -37,13 +36,13 @@ public class SseEventListener {
     }
     public void onChancesEvent(ChancesEvent chancesEvent) {
         sseFactory.getSecureEmitters().forEach((userName, emitter) -> {
-            List<Match> matchesToSend = userProfileService.getAllBetsByUserName(userName).stream().map(bet -> {
+            List<Match> matchesToSend = betsService.getAllBetsByUserName(userName).stream().map(bet -> {
                 BetId betId = bet.getBetId();
                 return new Match(betId.getTeam1Name(), betId.getTeam2Name());
             }).toList();
             try {
                 List<MatchChances> matchChancesToSend = chancesEvent.getMatchChances().stream()
-                        .filter(matchChances -> matchesToSend.contains(createMatchObjectFromTwoTeams(matchChances.team1Name(), matchChances.team2Name()))).toList();
+                        .filter(matchChances -> matchesToSend.contains(createMatchObjectFromTwoTeams(matchChances.getTeam1Name(), matchChances.getTeam2Name()))).toList();
                 chancesEvent.setMatchChances(matchChancesToSend);
                 emitter.send(chancesEvent);
                 log.info("Sent chances event to user: " + userName + " with " + matchChancesToSend.size() + " matches");

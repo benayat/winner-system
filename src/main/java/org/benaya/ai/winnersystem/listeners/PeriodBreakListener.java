@@ -16,7 +16,7 @@ import java.util.Objects;
 public class PeriodBreakListener {
     private final CacheManager cacheManager;
 
-    @EventListener(value = PeriodBreakEvent.class, condition = "#periodBreakEvent.isBlockBets()")
+    @EventListener(value = PeriodBreakEvent.class)
     @Async
     public void onPeriodBreakEvent(PeriodBreakEvent periodBreakEvent) {
         Objects.requireNonNull(cacheManager.getCache("betsControllerBlockCache")).put("blocked", periodBreakEvent.isBlockBets());

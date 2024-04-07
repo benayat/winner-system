@@ -16,5 +16,5 @@ public interface ResultsGeneratorService {
     Map<Match, Scorer> matchToScorerProbabilityMapForGoalEvent(List<Match> period);
     ConcurrentHashMap<Match, List<MatchResults>> getResultsForAllGoalEventsInPeriod(List<Match> periodMatches, int numberOfEvents);
     Map<Match, MatchResults> getFinalResultsFromAllGoalResults(Map<Match, List<MatchResults>> matchToListOfGoalResults);
-    void handlePeriodResults(Map<Match, MatchResults> matchToResults);
+    void handlePeriodResults(Map<Match, MatchResults> matchToResults, List<MatchChances> matchesChances);
 }

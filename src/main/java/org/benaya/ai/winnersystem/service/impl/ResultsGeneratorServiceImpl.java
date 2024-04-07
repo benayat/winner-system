@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.benaya.ai.winnersystem.model.*;
 import org.benaya.ai.winnersystem.service.ResultsGeneratorService;
+import org.benaya.ai.winnersystem.service.UserProfileService;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -19,6 +20,7 @@ public class ResultsGeneratorServiceImpl implements ResultsGeneratorService {
 
     private final TeamServiceImpl teamService;
     private final RandomGenerator randomGenerator = RandomGenerator.getDefault();
+    private final UserProfileService userProfileService;
 
 
     public Set<List<Match>> generateMatchUps() {
@@ -53,6 +55,7 @@ public class ResultsGeneratorServiceImpl implements ResultsGeneratorService {
     public List<MatchChances> getMatchesChancesForPeriod(List<Match> period) {
         return period.stream().map(match -> getMatchChances(match.getTeam1(), match.getTeam2())).toList();
     }
+
     public Map<Match, Scorer> matchToScorerProbabilityMapForGoalEvent(List<Match> period) {
         Map<Match, Scorer> matchToScorers = new ConcurrentHashMap<>();
         for (Match match : period) {
@@ -62,16 +65,16 @@ public class ResultsGeneratorServiceImpl implements ResultsGeneratorService {
         return matchToScorers;
     }
 
-    public ConcurrentHashMap<Match, List<MatchResults>> getResultsForAllGoalEventsInPeriod(List<Match> periodMatches, int numberOfEvents){
+    public ConcurrentHashMap<Match, List<MatchResults>> getResultsForAllGoalEventsInPeriod(List<Match> periodMatches, int numberOfEvents) {
         ConcurrentHashMap<Match, List<MatchResults>> matchToResults = new ConcurrentHashMap<>(periodMatches.size());
-        for(int i = 0; i < numberOfEvents; i++){
+        for (int i = 0; i < numberOfEvents; i++) {
             Map<Match, Scorer> matchToScorerOneGoalTime = matchToScorerProbabilityMapForGoalEvent(periodMatches);
             matchToScorerOneGoalTime.forEach((match, scorer) -> {
                 matchToResults.putIfAbsent(match, new ArrayList<>());
                 MatchResults matchResults = matchToResults.get(match).isEmpty() ? new MatchResults(0, 0) : new MatchResults(matchToResults.get(match).getLast());
-                if(scorer == Scorer.TEAM1){
+                if (scorer == Scorer.TEAM1) {
                     matchResults.setTeam1Goals(matchResults.getTeam1Goals() + 1);
-                } else if(scorer == Scorer.TEAM2){
+                } else if (scorer == Scorer.TEAM2) {
                     matchResults.setTeam2Goals(matchResults.getTeam2Goals() + 1);
                 }
                 matchToResults.get(match).add(matchResults);
@@ -79,7 +82,8 @@ public class ResultsGeneratorServiceImpl implements ResultsGeneratorService {
         }
         return matchToResults;
     }
-    public Map<Match, MatchResults> getFinalResultsFromAllGoalResults(Map<Match, List<MatchResults>> matchToListOfGoalResults){
+
+    public Map<Match, MatchResults> getFinalResultsFromAllGoalResults(Map<Match, List<MatchResults>> matchToListOfGoalResults) {
         Map<Match, MatchResults> matchToFinalResults = new HashMap<>();
         matchToListOfGoalResults.forEach((match, goalResults) -> {
             MatchResults finalResults = goalResults.getLast();
@@ -96,7 +100,6 @@ public class ResultsGeneratorServiceImpl implements ResultsGeneratorService {
     }
 
 
-
     private float calculateGoalProbability(String teamName) {
         Team team = teamService.findTeamByName(teamName);
         float probability = BASE_PROBABILITY + team.getSkillLevel() * SKILL_PROBABILITY_MODIFIER_STEP;
@@ -104,6 +107,7 @@ public class ResultsGeneratorServiceImpl implements ResultsGeneratorService {
         float resultProbability = probability - injuryFactor * team.getInjuries();
         return resultProbability > 0 ? resultProbability : 0;
     }
+
     private Scorer generateGoalByProbability(String team1Name, String team2Name) {
         float team1Probability = calculateGoalProbability(team1Name);
         float team2Probability = calculateGoalProbability(team2Name);
@@ -116,8 +120,8 @@ public class ResultsGeneratorServiceImpl implements ResultsGeneratorService {
         } else return Scorer.NONE;
     }
 
-//    handling period results - setting parameters for each team at the end, and sending relevant results to UI if needed.
-    public void handlePeriodResults(Map<Match, MatchResults> matchToResults) {
+    //    handling period results - setting parameters for each team at the end, and sending relevant results to UI if needed.
+    public void handlePeriodResults(Map<Match, MatchResults> matchToResults, List<MatchChances> matchesChances) {
         log.debug("handling period results");
         matchToResults.forEach((match, results) -> {
             Team team1 = teamService.findTeamByName(match.getTeam1());
@@ -136,7 +140,31 @@ public class ResultsGeneratorServiceImpl implements ResultsGeneratorService {
             team2.setInjuries(randomGenerator.nextInt(6));
             teamService.saveTeam(team1);
             teamService.saveTeam(team2);
+            MatchChances matchChances = matchesChances.stream().filter(matchChances1 -> matchChances1.getTeam1Name().equals(match.getTeam1()) && matchChances1.getTeam2Name().equals(match.getTeam2())).findFirst().orElseThrow();
+            if (results.getWinner().equals(Winner.TEAM1)) {
+                List<UserProfile> usersBetOnTeam1 = userProfileService.getAllByBets_BetId_Team1NameAndBets_BetId_Team2NameAndWinnerName(match.getTeam1(), match.getTeam2(), Winner.TEAM1);
+                usersBetOnTeam1.forEach(user -> {
+                    int winAmount = user.getBets().stream().filter(bet -> bet.getBetId().getTeam1Name().equals(match.getTeam1()) && bet.getBetId().getTeam2Name().equals(match.getTeam2())).findFirst().map(Bet::getBetAmount).orElseThrow() * 100 / matchChances.getTeam1Chances();
+                    user.setBalance(user.getBalance() + winAmount);
+                });
+                userProfileService.saveAll(usersBetOnTeam1);
+            } else if (results.getWinner().equals(Winner.TEAM2)) {
+                List<UserProfile> usersBetOnTeam2 = userProfileService.getAllByBets_BetId_Team1NameAndBets_BetId_Team2NameAndWinnerName(match.getTeam1(), match.getTeam2(), Winner.TEAM2);
+                usersBetOnTeam2.forEach(user -> {
+                    int winAmount = user.getBets().stream().filter(bet -> bet.getBetId().getTeam1Name().equals(match.getTeam1()) && bet.getBetId().getTeam2Name().equals(match.getTeam2())).findFirst().map(Bet::getBetAmount).orElseThrow() * 100 / matchChances.getTeam2Chances();
+                    user.setBalance(user.getBalance() + winAmount);
+                });
+                userProfileService.saveAll(usersBetOnTeam2);
+            } else {
+                List<UserProfile> usersBetOnTie = userProfileService.getAllByBets_BetId_Team1NameAndBets_BetId_Team2NameAndWinnerName(match.getTeam1(), match.getTeam2(), Winner.TIE);
+                usersBetOnTie.forEach(user -> {
+                    int winAmount = user.getBets().stream().filter(bet -> bet.getBetId().getTeam1Name().equals(match.getTeam1()) && bet.getBetId().getTeam2Name().equals(match.getTeam2())).findFirst().map(Bet::getBetAmount).orElseThrow() * 100 / (100 - matchChances.getTeam1Chances() - matchChances.getTeam2Chances());
+                    user.setBalance(user.getBalance() + winAmount);
+                });
+                userProfileService.saveAll(usersBetOnTie);
+            }
         });
+
     }
 
 }

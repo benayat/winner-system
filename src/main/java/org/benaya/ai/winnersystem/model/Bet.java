@@ -15,15 +15,15 @@ public class Bet implements Serializable {
     @EmbeddedId
     private BetId betId;
     @ManyToOne
-    @MapsId("userName")
+//    @JoinColumn(name = "user_email")
+    @MapsId("userEmail")
     private UserProfile userProfile;
-    private String teamName;
+    private Winner winner;
     int betAmount;
 
-    public Bet(UserProfile userProfile, String team1Name, String team2Name, String teamName, int betAmount) {
-        this.betId = BetId.builder().userEmail(userProfile.getEmail()).team1Name(team1Name).team2Name(team2Name).build();
-        this.userProfile = userProfile;
-        this.teamName = teamName;
+    public Bet(String userEmail, String team1Name, String team2Name, Winner winner, int betAmount) {
+        this.betId = BetId.builder().userEmail(userEmail).team1Name(team1Name).team2Name(team2Name).build();
+        this.winner = winner;
         this.betAmount = betAmount;
     }
 }

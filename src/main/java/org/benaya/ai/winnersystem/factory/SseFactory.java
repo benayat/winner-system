@@ -18,7 +18,7 @@ public class SseFactory {
     public SseEmitter getSecureEmitter(String userName) {
         return secureEmitters.computeIfAbsent(userName, k->new SseEmitter());
     }
-    public SseEmitter getSimpleEmmiter() {
+    public SseEmitter getSimpleEmitter() {
         SseEmitter emitter = new SseEmitter();
         simpleEmitters.add(emitter);
         return emitter;

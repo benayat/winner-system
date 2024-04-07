@@ -7,11 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
-public interface BetRepository extends JpaRepository<Bet, BetId> {
-
-//    void deleteAllByUserProfile_UserName(String userName);
+public interface BetsRepository extends JpaRepository<Bet, BetId> {
     List<Bet> getAllByUserProfile_UserName(String userName);
-
-
 
 }

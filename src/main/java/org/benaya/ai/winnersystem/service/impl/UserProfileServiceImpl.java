@@ -1,9 +1,10 @@
 package org.benaya.ai.winnersystem.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.benaya.ai.winnersystem.exception.LowBalanceException;
 import org.benaya.ai.winnersystem.model.Bet;
 import org.benaya.ai.winnersystem.model.UserProfile;
-import org.benaya.ai.winnersystem.repository.BetRepository;
+import org.benaya.ai.winnersystem.model.Winner;
 import org.benaya.ai.winnersystem.repository.UserProfileRepository;
 import org.benaya.ai.winnersystem.service.UserProfileService;
 import org.springframework.stereotype.Service;
@@ -15,11 +16,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class UserProfileServiceImpl implements UserProfileService {
     private final UserProfileRepository userProfileRepository;
-    private final BetRepository betRepository;
 
-    public List<Bet> getAllBetsByUserName(String userName) {
-        return betRepository.getAllByUserProfile_UserName(userName);
-    }
     public Optional<UserProfile> getUserProfileByEmail(String email) {
         return userProfileRepository.findByEmail(email);
     }
@@ -37,15 +34,24 @@ public class UserProfileServiceImpl implements UserProfileService {
         currentSavedUser.setUserName(newUserName);
         return userProfileRepository.save(currentSavedUser);
     }
-    public UserProfile updateBetsAndBalance(Bet bet, UserProfile userProfile) {
-        userProfile.getBets().add(bet);
-        userProfile.setBalance(userProfile.getBalance() - bet.getBetAmount());
-        return userProfileRepository.save(userProfile);
+
+    public void placeBetsForPeriod(List<Bet> bets, String userEmail) {
+        int betsAmount = bets.stream().mapToInt(Bet::getBetAmount).sum();
+        UserProfile userProfile = userProfileRepository.findByEmail(userEmail).orElseThrow();
+        if(userProfile.getBalance() < betsAmount) {
+            throw new LowBalanceException();
+        }
+        userProfile.setBets(bets);
+        userProfile.setBalance(userProfile.getBalance() - betsAmount);
+        userProfileRepository.save(userProfile);
     }
     public void deleteUserProfile(String email) {
         userProfileRepository.deleteByEmail(email);
     }
-
-
-
+    public List<UserProfile> getAllByBets_BetId_Team1NameAndBets_BetId_Team2NameAndWinnerName(String team1Name, String team2Name, Winner winner) {
+        return userProfileRepository.getAllByBets_BetId_Team1NameAndBets_BetId_Team2NameAndBets_Winner(team1Name, team2Name, winner);
+    }
+    public void saveAll(List<UserProfile> userProfiles) {
+        userProfileRepository.saveAll(userProfiles);
+    }
 }

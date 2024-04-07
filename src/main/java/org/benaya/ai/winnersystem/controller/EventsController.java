@@ -13,17 +13,13 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 @Slf4j
 public class EventsController {
     private final SseFactory sseFactory;
-
     @GetMapping(value = "/bets", produces = "text/event-stream")
     public SseEmitter getEvents(@AuthenticationPrincipal String email) {
         log.info("inside getEvents");
         return sseFactory.getSecureEmitter(email);
     }
-
     @GetMapping(value = "/round", produces = "text/event-stream")
     public SseEmitter getRoundEvents() {
-        return sseFactory.getSimpleEmmiter();
+        return sseFactory.getSimpleEmitter();
     }
-
-
 }

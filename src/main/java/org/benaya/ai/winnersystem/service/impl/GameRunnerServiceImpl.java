@@ -24,7 +24,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @EnableAsync
 public class GameRunnerServiceImpl implements GameRunnerService {
     private final ApplicationEventPublisher applicationEventPublisher;
-    ResultsGeneratorService resultsGeneratorService;
+    private final ResultsGeneratorService resultsGeneratorService;
     @Value("#{${game.num_teams}-1}")
     private int numberOfRoundsPerSeason;
     @Value("${game.number_of_goal_events_per_game}")
@@ -58,7 +58,7 @@ public class GameRunnerServiceImpl implements GameRunnerService {
             runOneGoalEvent(matchToListOfTempResults, i);
         }
         Map<Match, MatchResults> finalResults = resultsGeneratorService.getFinalResultsFromAllGoalResults(matchToListOfTempResults);
-        resultsGeneratorService.handlePeriodResults(finalResults);
+        resultsGeneratorService.handlePeriodResults(finalResults, chancesList);
     }
 
     private void runOneGoalEvent(ConcurrentHashMap<Match, List<MatchResults>> matchToListOfTempResults, int index) throws InterruptedException {

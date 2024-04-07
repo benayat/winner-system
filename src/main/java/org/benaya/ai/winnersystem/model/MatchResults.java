@@ -14,4 +14,13 @@ public class MatchResults {
         this.team1Goals = matchResults.team1Goals;
         this.team2Goals = matchResults.team2Goals;
     }
+    public Winner getWinner() {
+        if (team1Goals > team2Goals) {
+            return Winner.TEAM1;
+        } else if (team1Goals < team2Goals) {
+            return Winner.TEAM2;
+        } else {
+            return Winner.TIE;
+        }
+    }
 }
