@@ -27,6 +27,10 @@ logging:
       benaya:
         ai:
           winnersystem:
+            factory:
+              SseFactory: DEBUG
+            listeners:
+              org.benaya.ai.winnersystem.listeners.SseEventsListener: DEBUG
             service:
               impl: DEBUG
 game:

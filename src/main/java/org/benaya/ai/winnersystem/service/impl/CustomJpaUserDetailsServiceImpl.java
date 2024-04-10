@@ -20,6 +20,7 @@ public class CustomJpaUserDetailsServiceImpl implements UserDetailsService {
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         UserProfile userProfile = userProfileService.getUserProfileByEmail(email).orElseThrow();
         return new org.springframework.security.core.userdetails
-                .User(userProfile.getUserName(), userProfile.getPassword(), Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER")));
+                .User(userProfile.getEmail(), userProfile.getPassword(), Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER")));
     }
+
 }

@@ -48,11 +48,11 @@ public class GameRunnerServiceImpl implements GameRunnerService {
 
     private void runOnePeriod(List<Match> matchesList) throws InterruptedException {
         List<MatchChances> chancesList = resultsGeneratorService.getMatchesChancesForPeriod(matchesList);
+        log.info("in runOnePeriod method, Starting period");
         applicationEventPublisher.publishEvent(new PeriodBreakEvent(false, chancesList));
-//        applicationEventPublisher.publishEvent(new GameStartedEvent());
         Thread.sleep(Duration.ofSeconds(breakBetweenPeriodsInSeconds));
         applicationEventPublisher.publishEvent(new PeriodBreakEvent(true));
-        applicationEventPublisher.publishEvent(new GameStartedEvent());
+        applicationEventPublisher.publishEvent(new MatchStartedEvent(matchesList));
         ConcurrentHashMap<Match, List<MatchResults>> matchToListOfTempResults = resultsGeneratorService.getResultsForAllGoalEventsInPeriod(matchesList, numberOfGoalEventsPerGame);
         for(int i = 0; i < numberOfGoalEventsPerGame; i++){
             runOneGoalEvent(matchToListOfTempResults, i);

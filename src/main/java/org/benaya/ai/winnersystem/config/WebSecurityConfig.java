@@ -29,22 +29,19 @@ public class WebSecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
                 .authorizeHttpRequests(authorize -> authorize
+                        .requestMatchers(HttpMethod.GET, "/api/team/all", "/api/team/sorted").permitAll()
                         .requestMatchers(HttpMethod.GET, "api/sse-events/round").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/user/signup").permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/api/user/signup").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/game/start").permitAll()
-                        .requestMatchers("/api/team/**").hasRole("USER")
-                        .requestMatchers("/api/game/start").hasRole("USER")
-                        .requestMatchers("/api/sse-events/bets").hasRole("USER")
-                        .requestMatchers("/api/user/update-email").hasRole("USER")
-                        .requestMatchers("/api/user/delete").hasRole("USER")
-                        .requestMatchers("/api/user/update-username").hasRole("USER")
+//                        .requestMatchers(HttpMethod.POST, "/api/game/start").permitAll()
+                        .requestMatchers( "/api/user/profile", "/api/game/start").permitAll()
+                        .requestMatchers("/api/team/**", "/api/game/start", "api/sse-events/bets", "/api/user/update-email", "/api/user/delete", "/api/user/update-username").hasRole("USER")
                         .anyRequest().authenticated())
 //                .httpBasic(httpBasic -> httpBasic.realmName("winnersystem"))
                 .formLogin(formLogin -> formLogin
-                                .loginProcessingUrl("/login")
-                                .permitAll()
-                                .defaultSuccessUrl("/api/user/")
+                        .loginProcessingUrl("/login")
+                        .permitAll()
+                        .defaultSuccessUrl("/api/user/")
                 )
                 .logout(logout -> logout
                         .logoutSuccessUrl("/")

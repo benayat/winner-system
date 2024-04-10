@@ -9,10 +9,11 @@ import java.util.Map;
 @AllArgsConstructor
 @Getter
 public enum EventType {
-    CHANCES_EVENT("CHANCES_EVENT"),
     GOAL_CYCLE_EVENT("GOAL_CYCLE_EVENT"),
+    TIMER_EVENT("TIMER_EVENT"),
+    PERIOD_TIMER_EVENT("PERIOD_TIMER_EVENT"),
     PERIOD_BREAK_EVENT("PERIOD_BREAK_EVENT"),
-    GAME_STARTED_EVENT("GAME_STARTED_EVENT");
+    MATCH_STARTED_EVENT("MATCH_STARTED_EVENT");
 
     private final String value;
     private static final Map<String, EventType> lookup = new HashMap<>();

@@ -6,7 +6,9 @@ import org.benaya.ai.winnersystem.model.UserProfile;
 import org.benaya.ai.winnersystem.service.UserProfileService;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @Slf4j
@@ -22,6 +24,12 @@ public class UserController {
         return email;
     }
 
+    @GetMapping("/profile")
+    public boolean isLoggedIn(@RequestParam String email) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        log.info("auth name: {}",authentication.getName());
+        return authentication.getName().equals(email);
+    }
     @PostMapping(value = "/signup", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public UserProfile createUser(@RequestBody UserProfile userprofile) {
         log.info("inside createUser");
