@@ -33,9 +33,10 @@ public class SseSchedulerServiceImpl implements SseSchedulerService {
         SseEvent event;
 
         while ((event = events.poll()) != null) {
-            log.info("number of emitters: "+ sseFactory.getSimpleEmitters().size() + "and secure emitters: "+ sseFactory.getSecureEmitters().size());
+            log.debug("number of emitters: "+ sseFactory.getSimpleEmitters().size() + "and secure emitters: "+ sseFactory.getSecureEmitters().size());
             SseEvent finalEvent = event;
-            log.info("num events to send: "+ getEvents().size());
+            log.debug("num events to send: "+ getEvents().size());
+            log.info("sending event: "+ finalEvent);
             sseFactory.getEmittersForEvent(event).forEach((key, emitter) -> {
                 try {
                     emitter.send(finalEvent);

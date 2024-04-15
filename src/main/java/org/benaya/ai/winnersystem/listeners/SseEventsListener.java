@@ -12,6 +12,8 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import java.util.Objects;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
@@ -34,62 +36,37 @@ public class SseEventsListener {
     public void onPeriodBreakEvent(PeriodBreakEvent periodBreakEvent) {
         Objects.requireNonNull(cacheManager.getCache("betsControllerBlockCache")).put("blocked", periodBreakEvent.isBlockBets());
         log.info("period break Event");
-        if(!periodBreakEvent.isBlockBets()) {
-            for (int i = 0; i < BREAK_TIME_IN_SECONDS; i++) {
-                int finalI = i;
-                scheduledExecutorService.schedule(() -> {
-                    sseSchedulerService.queueSseMessage(new TimerEvent(finalI + 1, Units.SECONDS));
-                }, 1, TimeUnit.SECONDS);
-            }
+        if (!periodBreakEvent.isBlockBets()) {
+            runTimerEvents(BREAK_TIME_IN_SECONDS, 1, Units.SECONDS, TimeUnit.SECONDS);
         }
     }
+
+
     @EventListener(value = MatchStartedEvent.class)
     @Async
-    public void onGameStartedEvent(MatchStartedEvent matchStartedEvent) {
-        log.info("Game Started Event");
-        for(int i=0; i<MATCH_TIME_IN_MINUTES; i++){
+    public void onGameStartedEvent() {
+        log.debug("Game Started Event");
+        runTimerEvents(MATCH_TIME_IN_MINUTES, 330, Units.MINUTES, TimeUnit.MILLISECONDS);
+    }
+    private void runTimerEvents(int numEvents, int delayTime, Units units, TimeUnit timeUnit) {
+        for (int i = 0; i <= numEvents; i++) {
             int finalI = i;
-            scheduledExecutorService.schedule(() -> {
-                sseSchedulerService.queueSseMessage(new TimerEvent(finalI +1, Units.MINUTES));
-            }, 330, TimeUnit.MILLISECONDS);
+            Callable<Void> task = () -> {
+                sseSchedulerService.queueSseMessage(new TimerEvent(finalI, units));
+                return null;
+            };
+            try {
+                scheduledExecutorService.schedule(task, delayTime, timeUnit).get();
+            } catch (InterruptedException | ExecutionException e) {
+                Thread.currentThread().interrupt();
+                throw new IllegalStateException(e);
+            }
         }
     }
     @EventListener(SseEvent.class)
     @Async
-    public void onSseEvent(SseEvent sseEvent){
-        log.info("Received sse event: {}", sseEvent);
+    public void onSseEvent(SseEvent sseEvent) {
+        log.debug("Received sse event: {}", sseEvent);
         sseSchedulerService.queueSseMessage(sseEvent);
     }
-
-//    public void onGoalCycleEvent(GoalCycleEvent goalCycleEvent) {
-//        log.info("Sent goal cycle event to all users");
-//        sseFactory.getSimpleEmitters().forEach((ip,emitter) -> {
-//            try {
-//                emitter.send(goalCycleEvent);
-//            } catch (IOException e) {
-//                throw new RuntimeException(e);
-//            }
-//        });
-//    }
-//    public void onGameStartedEvent(GameStartedEvent gameStartedEvent) {
-//        log.info("Sending gameStartedEvent to all users");
-//        sseFactory.getSimpleEmitters().forEach((ip,emitter) -> {
-//            try {
-//                emitter.send(gameStartedEvent);
-//            } catch (IOException e) {
-//                throw new RuntimeException(e);
-//            }
-//        });
-//    }
-//    private void onPeriodBreakEvent(PeriodBreakEvent periodBreakEvent) {
-//        log.info("Sending periodBreakEvent to all users");
-//        sseFactory.getSecureEmitters().forEach((userName, emitter)-> {
-//            try {
-//                emitter.send(periodBreakEvent);
-//            } catch (IOException e) {
-//                throw new RuntimeException(e);
-//            }
-//        });
-//    }
-
 }

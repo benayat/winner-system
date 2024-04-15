@@ -9,6 +9,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
 
 @Slf4j
@@ -20,14 +21,18 @@ public class UserController {
     private final UserProfileService userProfileServiceImpl;
 
     @GetMapping("/")
-    public String getUserProfile(@AuthenticationPrincipal String email) {
-        return email;
+    public String getUserProfile(@AuthenticationPrincipal User user) {
+        log.info("inside getUserProfile, returning {}", user.getUsername());
+        return user.getUsername();
     }
 
-    @GetMapping("/profile")
-    public boolean isLoggedIn(@RequestParam String email) {
+    @GetMapping("/balance")
+    public int getBalance(@AuthenticationPrincipal User user) {
+        return userProfileServiceImpl.getBalanceForUser(user.getUsername());
+    }
+    @GetMapping(value = "/logged-in", produces = MediaType.APPLICATION_JSON_VALUE)
+    public Boolean isLoggedIn(@RequestParam String email) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        log.info("auth name: {}",authentication.getName());
         return authentication.getName().equals(email);
     }
     @PostMapping(value = "/signup", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)

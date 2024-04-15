@@ -13,7 +13,8 @@ public enum EventType {
     TIMER_EVENT("TIMER_EVENT"),
     PERIOD_TIMER_EVENT("PERIOD_TIMER_EVENT"),
     PERIOD_BREAK_EVENT("PERIOD_BREAK_EVENT"),
-    MATCH_STARTED_EVENT("MATCH_STARTED_EVENT");
+    MATCH_STARTED_EVENT("MATCH_STARTED_EVENT"),
+    MATCH_ENDED_EVENT("MATCH_ENDED_EVENT");
 
     private final String value;
     private static final Map<String, EventType> lookup = new HashMap<>();

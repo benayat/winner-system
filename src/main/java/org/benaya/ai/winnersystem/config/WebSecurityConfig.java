@@ -31,12 +31,16 @@ public class WebSecurityConfig {
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(HttpMethod.GET, "/api/team/all", "/api/team/sorted").permitAll()
                         .requestMatchers(HttpMethod.GET, "api/sse-events/round").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/season/is-active").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/user/signup").permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/api/user/signup").permitAll()
-//                        .requestMatchers(HttpMethod.POST, "/api/game/start").permitAll()
-                        .requestMatchers( "/api/user/profile", "/api/game/start").permitAll()
-                        .requestMatchers("/api/team/**", "/api/game/start", "api/sse-events/bets", "/api/user/update-email", "/api/user/delete", "/api/user/update-username").hasRole("USER")
+                        .requestMatchers("/api/season/start", "/api/user/logged-in").permitAll()
+                        .requestMatchers("/api/team/**", "/api/season/start", "api/sse-events/bets", "/api/user/update-email", "/api/user/delete", "/api/user/update-username").hasRole("USER")
                         .anyRequest().authenticated())
+                .rememberMe(httpSecurityRememberMeConfigurer -> httpSecurityRememberMeConfigurer
+                        .key("my key")
+                        .tokenValiditySeconds(1800)
+                        .userDetailsService(userDetailsService))
 //                .httpBasic(httpBasic -> httpBasic.realmName("winnersystem"))
                 .formLogin(formLogin -> formLogin
                         .loginProcessingUrl("/login")

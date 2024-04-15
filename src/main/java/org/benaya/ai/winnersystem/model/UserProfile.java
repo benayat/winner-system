@@ -1,5 +1,6 @@
 package org.benaya.ai.winnersystem.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import lombok.Data;
@@ -19,8 +20,9 @@ public class UserProfile {
     @Column(nullable = false)
     @ValidPassword
     private String password;
-    @OneToMany(mappedBy = "userProfile", cascade = CascadeType.ALL)
-    List<Bet> bets;
+    @OneToMany(mappedBy = "userProfile", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore
+    private List<Bet> bets;
     @Column(nullable = false)
     private int balance = 1000;
 }

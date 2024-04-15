@@ -7,8 +7,10 @@ import org.benaya.ai.winnersystem.model.MatchChances;
 import org.benaya.ai.winnersystem.model.MatchResults;
 import org.benaya.ai.winnersystem.model.events.*;
 import org.benaya.ai.winnersystem.service.ResultsGeneratorService;
-import org.benaya.ai.winnersystem.service.GameRunnerService;
+import org.benaya.ai.winnersystem.service.SeasonRunnerService;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableAsync;
@@ -22,7 +24,8 @@ import java.util.concurrent.ConcurrentHashMap;
 @RequiredArgsConstructor
 @Slf4j
 @EnableAsync
-public class GameRunnerServiceImpl implements GameRunnerService {
+public class SeasonRunnerServiceImpl implements SeasonRunnerService {
+    private final CacheManager cacheManager;
     private final ApplicationEventPublisher applicationEventPublisher;
     private final ResultsGeneratorService resultsGeneratorService;
     @Value("#{${game.num_teams}-1}")
@@ -34,15 +37,26 @@ public class GameRunnerServiceImpl implements GameRunnerService {
     @Value("${game.break_between_periods_in_seconds}")
     private long breakBetweenPeriodsInSeconds;
 
+    @Override
+    public boolean isSeasonActive() {
+        Cache.ValueWrapper activeWrapper = Objects.requireNonNull(cacheManager.getCache("seasonCache")).get("active");
+        return Objects.equals(activeWrapper != null ? activeWrapper.get() : null, Boolean.TRUE);
+    }
+
     @Async
-    public void startGame() {
-        try{
+    public void startSeason() {
+
+        try {
+            applicationEventPublisher.publishEvent(new SeasonEvent(true));
             Set<List<Match>> allMatchups = resultsGeneratorService.generateMatchUps();
-            for(List<Match> period : allMatchups){
+            for (List<Match> period : allMatchups) {
                 runOnePeriod(period);
+                applicationEventPublisher.publishEvent(new MatchEndedEvent());
             }
         } catch (InterruptedException e) {
             log.error("Error in timer stream", e);
+        } finally {
+            applicationEventPublisher.publishEvent(new SeasonEvent(false));
         }
     }
 
@@ -54,9 +68,10 @@ public class GameRunnerServiceImpl implements GameRunnerService {
         applicationEventPublisher.publishEvent(new PeriodBreakEvent(true));
         applicationEventPublisher.publishEvent(new MatchStartedEvent(matchesList));
         ConcurrentHashMap<Match, List<MatchResults>> matchToListOfTempResults = resultsGeneratorService.getResultsForAllGoalEventsInPeriod(matchesList, numberOfGoalEventsPerGame);
-        for(int i = 0; i < numberOfGoalEventsPerGame; i++){
+        for (int i = 0; i < numberOfGoalEventsPerGame; i++) {
             runOneGoalEvent(matchToListOfTempResults, i);
         }
+
         Map<Match, MatchResults> finalResults = resultsGeneratorService.getFinalResultsFromAllGoalResults(matchToListOfTempResults);
         resultsGeneratorService.handlePeriodResults(finalResults, chancesList);
     }

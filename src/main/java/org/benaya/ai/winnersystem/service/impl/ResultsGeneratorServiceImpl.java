@@ -26,31 +26,28 @@ public class ResultsGeneratorServiceImpl implements ResultsGeneratorService {
 
 
     public Set<List<Match>> generateMatchUps() {
-        List<Team> teams = teamService.findAllTeams();
-        SortedSet<TeamMatchups> allTeamMatchups = new TreeSet<>(Comparator.comparing(teamMatchups1 -> teamMatchups1.getOpponents().size()));
-        for (int i = 0; i < teams.size(); i++) {
-            TeamMatchups teamMatchups = new TeamMatchups(teams.get(i).getName());
-            for (int j = i + 1; j < teams.size(); j++) {
-                teamMatchups.getOpponents().add(teams.get(j).getName());
-            }
-            allTeamMatchups.add(teamMatchups);
-        }
+        List<Team> teams = new ArrayList<>(teamService.findAllTeams());
         int numberOfTeams = teams.size();
         Set<List<Match>> periods = new HashSet<>();
+
         for (int i = 0; i < numberOfTeams - 1; i++) {
             List<Match> period = new ArrayList<>();
+            List<Team> teamsInThisPeriod = new ArrayList<>(teams);
+
             for (int j = 0; j < numberOfTeams / 2; j++) {
-                try {
-                    String team1 = allTeamMatchups.getLast().getTeamName();
-                    String team2 = allTeamMatchups.getLast().getOpponents().removeFirst();
-                    Match match = new Match(team1, team2);
-                    period.add(match);
-                } catch (NoSuchElementException e) {
-                    break;
-                }
-                periods.add(period);
+                Team team1 = teamsInThisPeriod.removeFirst();
+                Team team2 = teamsInThisPeriod.removeFirst();
+                Match match = new Match(team1.getName(), team2.getName());
+                period.add(match);
             }
+
+            periods.add(period);
+            // Rotate the teams for the next period, keeping the first team fixed
+            Team fixed = teams.removeFirst();
+            teams.add(teams.removeFirst());
+            teams.addFirst(fixed);
         }
+
         return periods;
     }
 

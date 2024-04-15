@@ -7,10 +7,11 @@ import org.benaya.ai.winnersystem.factory.SseFactory;
 import org.benaya.ai.winnersystem.model.events.TimerEvent;
 import org.benaya.ai.winnersystem.model.events.Units;
 import org.benaya.ai.winnersystem.service.SseSchedulerService;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 @RestController
@@ -21,7 +22,6 @@ public class EventsController {
     private final SseFactory sseFactory;
     private final SseSchedulerService sseSchedulerService;
     @GetMapping(value = "/bets", produces = "text/event-stream")
-    @PreAuthorize("#user.username == authentication.principal.username")
     public SseEmitter getSecureEvents(@AuthenticationPrincipal(errorOnInvalidType = true)User user) {
         return sseFactory.getSecureEmitter(user.getUsername());
     }

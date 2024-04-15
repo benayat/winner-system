@@ -21,8 +21,9 @@ public class Bet implements Serializable {
     private Winner winner;
     int betAmount;
 
-    public Bet(String userEmail, String team1Name, String team2Name, Winner winner, int betAmount) {
+    public Bet(String userEmail, String team1Name, String team2Name,UserProfile userProfile, Winner winner, int betAmount) {
         this.betId = BetId.builder().userEmail(userEmail).team1Name(team1Name).team2Name(team2Name).build();
+        this.userProfile = userProfile;
         this.winner = winner;
         this.betAmount = betAmount;
     }

@@ -9,6 +9,6 @@ import org.springframework.context.annotation.Configuration;
 public class CacheConfig {
     @Bean
     public CacheManager cacheManager() {
-        return new ConcurrentMapCacheManager("betsControllerBlockCache");
+        return new ConcurrentMapCacheManager("betsControllerBlockCache", "seasonCache");
     }
 }

@@ -37,10 +37,8 @@ public class UserProfileServiceImpl implements UserProfileService {
         return userProfileRepository.save(currentSavedUser);
     }
 
-    public void placeBetsForPeriod(List<Bet> bets, String userEmail) {
 
-        int betsAmount = bets.stream().mapToInt(Bet::getBetAmount).sum();
-        UserProfile userProfile = userProfileRepository.findByEmail(userEmail).orElseThrow();
+    public void handleSideEffectsForUserBets(int betsAmount, UserProfile userProfile) {
         if (!userProfile.getBets().isEmpty()) {
             int amountToRestore = userProfile.getBets().stream().mapToInt(Bet::getBetAmount).sum();
             userProfile.setBalance(userProfile.getBalance() + amountToRestore);
@@ -48,7 +46,6 @@ public class UserProfileServiceImpl implements UserProfileService {
         if (userProfile.getBalance() < betsAmount) {
             throw new LowBalanceException();
         }
-        userProfile.setBets(bets);
         userProfile.setBalance(userProfile.getBalance() - betsAmount);
         userProfileRepository.save(userProfile);
     }
@@ -63,5 +60,8 @@ public class UserProfileServiceImpl implements UserProfileService {
 
     public void saveAll(List<UserProfile> userProfiles) {
         userProfileRepository.saveAll(userProfiles);
+    }
+    public int getBalanceForUser(String email) {
+        return userProfileRepository.findByEmail(email).orElseThrow().getBalance();
     }
 }

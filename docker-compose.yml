@@ -14,8 +14,8 @@ services:
   posegres_db:
     container_name: "posegres_db"
     image: postgres:14.2
+    user: postgres
     environment:
-      - POSTGRES_USER=root
       - POSTGRES_PASSWORD=123456
       - POSTGRES_DB=mydb
 #      - PGUSER=postgres

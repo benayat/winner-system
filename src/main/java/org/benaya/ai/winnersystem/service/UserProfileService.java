@@ -1,6 +1,5 @@
 package org.benaya.ai.winnersystem.service;
 
-import org.benaya.ai.winnersystem.model.Bet;
 import org.benaya.ai.winnersystem.model.UserProfile;
 import org.benaya.ai.winnersystem.model.Winner;
 
@@ -14,7 +13,8 @@ public interface UserProfileService {
     UserProfile updateEmail(String email, String newEmail);
     UserProfile updateUserName(String email, String newUserName);
     void deleteUserProfile(String email);
-    void placeBetsForPeriod(List<Bet> bet, String userEmail);
+    void handleSideEffectsForUserBets(int betsAmount, UserProfile userProfile);
     List<UserProfile> getAllByBets_BetId_Team1NameAndBets_BetId_Team2NameAndWinnerName(String team1Name, String team2Name, Winner winner);
     void saveAll(List<UserProfile> userProfiles);
+    int getBalanceForUser(String email);
 }

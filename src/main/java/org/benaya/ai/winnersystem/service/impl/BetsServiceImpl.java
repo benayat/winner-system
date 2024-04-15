@@ -1,9 +1,11 @@
 package org.benaya.ai.winnersystem.service.impl;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.benaya.ai.winnersystem.exception.BetsAreBlockedException;
 import org.benaya.ai.winnersystem.model.Bet;
-import org.benaya.ai.winnersystem.model.dto.ClientBet;
+import org.benaya.ai.winnersystem.model.UserProfile;
+import org.benaya.ai.winnersystem.model.dto.ClientBetDto;
 import org.benaya.ai.winnersystem.repository.BetsRepository;
 import org.benaya.ai.winnersystem.service.BetsService;
 import org.benaya.ai.winnersystem.service.UserProfileService;
@@ -23,13 +25,17 @@ public class BetsServiceImpl implements BetsService {
     public List<Bet> getAllBetsByUserName(String userName) {
         return betsRepository.getAllByUserProfile_UserName(userName);
     }
-    public void placeBets(String email, List<ClientBet> bets) {
+    @Transactional
+    public void placeBets(String email, List<ClientBetDto> bets) {
         Cache blockCache = cacheManager.getCache("betsControllerBlockCache");
         if (blockCache != null && Objects.equals(blockCache.get("blocked", Boolean.class), Boolean.TRUE)) {
             throw new BetsAreBlockedException();
         }
-        List<Bet> betsToSend = bets.stream().map(bet -> new Bet(email, bet.getTeam1Name(), bet.getTeam2Name(), bet.getExpectedWinner(), bet.getAmount())).toList();
-        userProfileService.placeBetsForPeriod(betsToSend, email);
+        UserProfile userProfile = userProfileService.getUserProfileByEmail(email).orElseThrow();
+        List<Bet> betsToSend = bets.stream().map(bet -> new Bet(email, bet.getTeam1Name(), bet.getTeam2Name(), userProfile, bet.getExpectedWinner(), bet.getAmount())).toList();
+        int betsAmount = betsToSend.stream().mapToInt(Bet::getBetAmount).sum();
+        userProfileService.handleSideEffectsForUserBets(betsAmount, userProfile);
+        betsRepository.saveAll(betsToSend);
     }
 
     public void deleteAllBets() {

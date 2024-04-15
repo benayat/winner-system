@@ -10,7 +10,7 @@ spring:
       ddl-auto: ${SPRING_JPA_HIBERNATE_DDL-AUTO:create-drop}
   datasource:
     url: jdbc:postgresql://localhost:5432/mydb
-    username: root
+    username: postgres
     password: 123456
     driverClassName: org.postgresql.Driver
   sql:
@@ -23,16 +23,16 @@ logging:
   level:
     org:
       springframework:
-        security: DEBUG
+        security: ${LOGGING_LEVEL:DEBUG}
       benaya:
         ai:
           winnersystem:
             factory:
-              SseFactory: DEBUG
+              SseFactory: ${LOGGING_LEVEL:DEBUG}
             listeners:
-              org.benaya.ai.winnersystem.listeners.SseEventsListener: DEBUG
+              org.benaya.ai.winnersystem.listeners.SseEventsListener: ${LOGGING_LEVEL:DEBUG}
             service:
-              impl: DEBUG
+              impl: ${LOGGING_LEVEL:DEBUG}
 game:
   length: ${GAME_LENGTH:30}
   num_teams: ${GAME_NUM_TEAMS:10}
