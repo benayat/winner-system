@@ -7,6 +7,7 @@ import org.benaya.ai.winnersystem.model.events.*;
 import org.benaya.ai.winnersystem.service.SseSchedulerService;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.CacheManager;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
@@ -30,6 +31,7 @@ public class SseEventsListener {
     private final CacheManager cacheManager;
     @Qualifier("blockingExecutor")
     private final ScheduledExecutorService scheduledExecutorService;
+//    private final ApplicationEventPublisher applicationEventPublisher;
 
     @EventListener(value = PeriodBreakEvent.class)
     @Async
@@ -48,10 +50,12 @@ public class SseEventsListener {
         log.debug("Game Started Event");
         runTimerEvents(MATCH_TIME_IN_MINUTES, 330, Units.MINUTES, TimeUnit.MILLISECONDS);
     }
+
     private void runTimerEvents(int numEvents, int delayTime, Units units, TimeUnit timeUnit) {
         for (int i = 0; i <= numEvents; i++) {
             int finalI = i;
             Callable<Void> task = () -> {
+//                applicationEventPublisher.publishEvent(new TimerEvent(finalI, units));
                 sseSchedulerService.queueSseMessage(new TimerEvent(finalI, units));
                 return null;
             };
@@ -63,10 +67,11 @@ public class SseEventsListener {
             }
         }
     }
-    @EventListener(SseEvent.class)
+
+    @EventListener(classes = {SseEvent.class, PeriodBreakEvent.class})
     @Async
     public void onSseEvent(SseEvent sseEvent) {
-        log.debug("Received sse event: {}", sseEvent);
+//        if(sseEvent.getEventType().equals(EventType.GOAL_CYCLE_EVENT)) log.info("sending goal cycle event");
         sseSchedulerService.queueSseMessage(sseEvent);
     }
 }

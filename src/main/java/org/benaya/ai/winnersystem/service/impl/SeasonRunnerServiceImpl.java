@@ -45,7 +45,6 @@ public class SeasonRunnerServiceImpl implements SeasonRunnerService {
 
     @Async
     public void startSeason() {
-
         try {
             applicationEventPublisher.publishEvent(new SeasonEvent(true));
             Set<List<Match>> allMatchups = resultsGeneratorService.generateMatchUps();
@@ -69,17 +68,17 @@ public class SeasonRunnerServiceImpl implements SeasonRunnerService {
         applicationEventPublisher.publishEvent(new MatchStartedEvent(matchesList));
         ConcurrentHashMap<Match, List<MatchResults>> matchToListOfTempResults = resultsGeneratorService.getResultsForAllGoalEventsInPeriod(matchesList, numberOfGoalEventsPerGame);
         for (int i = 0; i < numberOfGoalEventsPerGame; i++) {
-            runOneGoalEvent(matchToListOfTempResults, i);
+            Map<Match, MatchResults> tempResults = getTempResultsForOneGoalEvent(matchToListOfTempResults, i);
+            applicationEventPublisher.publishEvent(new GoalCycleEvent(tempResults));
+            Thread.sleep(Duration.ofSeconds(oneGoalEventTimeInSeconds));
         }
-
         Map<Match, MatchResults> finalResults = resultsGeneratorService.getFinalResultsFromAllGoalResults(matchToListOfTempResults);
         resultsGeneratorService.handlePeriodResults(finalResults, chancesList);
     }
 
-    private void runOneGoalEvent(ConcurrentHashMap<Match, List<MatchResults>> matchToListOfTempResults, int index) throws InterruptedException {
+    private Map<Match, MatchResults> getTempResultsForOneGoalEvent(ConcurrentHashMap<Match, List<MatchResults>> matchToListOfTempResults, int index) {
         Map<Match, MatchResults> tempResults = new HashMap<>();
         matchToListOfTempResults.forEach((k, v) -> tempResults.put(k, v.get(index)));
-        applicationEventPublisher.publishEvent(new GoalCycleEvent(tempResults));
-        Thread.sleep(Duration.ofSeconds(oneGoalEventTimeInSeconds));
+        return tempResults;
     }
 }

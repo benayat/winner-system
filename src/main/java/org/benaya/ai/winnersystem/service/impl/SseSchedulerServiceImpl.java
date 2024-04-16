@@ -24,19 +24,18 @@ public class SseSchedulerServiceImpl implements SseSchedulerService {
     private final ConcurrentLinkedQueue<SseEvent> events = new ConcurrentLinkedQueue<>();
 
     @Override
-    public void queueSseMessage(SseEvent sseEvent) {
+    public synchronized void queueSseMessage(SseEvent sseEvent) {
         events.add(sseEvent);
     }
 
     @Scheduled(fixedDelay = 330)
     public void sendEvents() {
         SseEvent event;
-
         while ((event = events.poll()) != null) {
-            log.debug("number of emitters: "+ sseFactory.getSimpleEmitters().size() + "and secure emitters: "+ sseFactory.getSecureEmitters().size());
+//            log.debug("number of emitters: "+ sseFactory.getSimpleEmitters().size() + "and secure emitters: "+ sseFactory.getSecureEmitters().size());
             SseEvent finalEvent = event;
-            log.debug("num events to send: "+ getEvents().size());
-            log.info("sending event: "+ finalEvent);
+//            log.debug("num events to send: "+ getEvents().size());
+//            log.info("sending event: "+ finalEvent);
             sseFactory.getEmittersForEvent(event).forEach((key, emitter) -> {
                 try {
                     emitter.send(finalEvent);

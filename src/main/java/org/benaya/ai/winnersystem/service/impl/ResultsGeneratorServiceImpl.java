@@ -104,7 +104,13 @@ public class ResultsGeneratorServiceImpl implements ResultsGeneratorService {
         float probability = BASE_PROBABILITY + team.getSkillLevel() * SKILL_PROBABILITY_MODIFIER_STEP;
         float injuryFactor = BASE_INJURY_FACTOR - team.getSkillLevel() * SKILL_INJURY_SCALE;
         float resultProbability = probability - injuryFactor * team.getInjuries();
-        return resultProbability > 0 ? resultProbability : 0;
+        if (resultProbability > 0.1 && resultProbability < 0.9) {
+            return resultProbability;
+        } else if (resultProbability < 0.1) {
+            return 0;
+        } else {
+            return 0.9f;
+        }
     }
 
     private Scorer generateGoalByProbability(String team1Name, String team2Name) {
@@ -120,7 +126,8 @@ public class ResultsGeneratorServiceImpl implements ResultsGeneratorService {
     }
 
     //    handling period results - setting parameters for each team at the end, and sending relevant results to UI if needed.
-    public void handlePeriodResults(Map<Match, MatchResults> matchToResults, List<MatchChances> matchesChances) {
+    public void handlePeriodResults
+    (Map<Match, MatchResults> matchToResults, List<MatchChances> matchesChances) {
         log.debug("handling period results");
         matchToResults.forEach((match, results) -> {
             Team team1 = teamService.findTeamByName(match.getTeam1());
@@ -164,6 +171,10 @@ public class ResultsGeneratorServiceImpl implements ResultsGeneratorService {
             }
         });
         betsService.deleteAllBets();
+    }
+    public List<MatchChances> getMatchChancesByUserBets(String userEmail) {
+        List<Bet> userBets = betsService.getAllBetsByUserName(userEmail);
+        return userBets.stream().map(bet -> getMatchChances(bet.getBetId().getTeam1Name(), bet.getBetId().getTeam2Name())).toList();
     }
 
 }

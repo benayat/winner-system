@@ -9,7 +9,7 @@ spring:
 #      ddl-auto: ${SPRING_JPA_HIBERNATE_DDL-AUTO:validate}
       ddl-auto: ${SPRING_JPA_HIBERNATE_DDL-AUTO:create-drop}
   datasource:
-    url: jdbc:postgresql://localhost:5432/mydb
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/mydb}
     username: postgres
     password: 123456
     driverClassName: org.postgresql.Driver
@@ -33,6 +33,8 @@ logging:
               org.benaya.ai.winnersystem.listeners.SseEventsListener: ${LOGGING_LEVEL:DEBUG}
             service:
               impl: ${LOGGING_LEVEL:DEBUG}
+UI:
+  url: ${UI_URL:http://localhost:3000}
 game:
   length: ${GAME_LENGTH:30}
   num_teams: ${GAME_NUM_TEAMS:10}

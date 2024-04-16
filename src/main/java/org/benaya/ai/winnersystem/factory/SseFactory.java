@@ -14,11 +14,8 @@ import java.util.concurrent.ConcurrentHashMap;
 @Getter
 @Slf4j
 public class SseFactory {
-
     private final Map<String, SseEmitter> secureEmitters = new ConcurrentHashMap<>();
-
     private final Map<String, SseEmitter> simpleEmitters = new ConcurrentHashMap<>();
-
     public SseEmitter getSecureEmitter(String userName) {
         return secureEmitters.computeIfAbsent(userName, k -> createEmitter(k, secureEmitters));
     }

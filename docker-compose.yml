@@ -2,25 +2,34 @@ version: "3.7"
 services:
   winner-system-backend:
     container_name: "winner-system-backend"
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: winner-backend:1.0.0
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres_db:5432/mydb
+      - UI_URL=UI:3000
+      - SPRING_JPA_HIBERNATE_DDL-AUTO=validate
     restart: "on-failure"
     ports:
       - "8080:8080"
     depends_on:
-      posegres_db:
+      postgres_db:
         condition: service_healthy
-  posegres_db:
+  UI:
+    container_name: "winner-system-ui"
+    image: winner-system-ui:1.0.0
+    environment:
+      - REACT_APP_BACKEND_URL=winner-system-backend:8080
+    restart: "on-failure"
+    ports:
+      - "3000:80"
+  postgres_db:
     container_name: "posegres_db"
     image: postgres:14.2
     user: postgres
     environment:
       - POSTGRES_PASSWORD=123456
       - POSTGRES_DB=mydb
-#      - PGUSER=postgres
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready", "-d", "db_prod" ]
+      test: [ "CMD-SHELL", "pg_isready", "-d", "mydb" ]
       interval: 30s
       timeout: 60s
       retries: 5

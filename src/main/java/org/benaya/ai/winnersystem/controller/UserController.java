@@ -43,17 +43,16 @@ public class UserController {
 
     @PutMapping("/update-email")
     @PreAuthorize("#email == authentication.principal.username")
-    public UserProfile updateEmail(@AuthenticationPrincipal String email, @RequestParam("new-email") String newEmail) {
+    public UserProfile updateEmail(@RequestParam String email, @RequestParam("new-email") String newEmail) {
         return userProfileServiceImpl.updateEmail(email, newEmail);
     }
     @PutMapping("/update-username")
-    @PreAuthorize("#email == authentication.principal.username")
-    public UserProfile updateUsername(@AuthenticationPrincipal String email, @RequestParam("new-username") String newUserName) {
-        return userProfileServiceImpl.updateUserName(email, newUserName);
+    public UserProfile updateUsername(@AuthenticationPrincipal User user, @RequestParam("new-username") String newUserName) {
+        return userProfileServiceImpl.updateUserName(user.getUsername(), newUserName);
     }
     @DeleteMapping("/delete")
-    @PreAuthorize("#email == authentication.principal.username")
-    public void deleteUser(@AuthenticationPrincipal String email) {
+    @PreAuthorize("#email == user.username")
+    public void deleteUser(@RequestParam String email, @AuthenticationPrincipal User user) {
         userProfileServiceImpl.deleteUserProfile(email);
     }
 }

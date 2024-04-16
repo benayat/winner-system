@@ -24,6 +24,6 @@ public class MatchChances {
         this.team2Name = team2Name;
         this.team1Chances = team1Chances;
         this.team2Chances = team2Chances;
-        this.tieChances = (team1Chances + team2Chances) >= 0 ? 100 - (team1Chances + team2Chances) : 0;
+        this.tieChances = (team1Chances + team2Chances) <= 100 ? 100 - (team1Chances + team2Chances) : 0;
     }
 }
