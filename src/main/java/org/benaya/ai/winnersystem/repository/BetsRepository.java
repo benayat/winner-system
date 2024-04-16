@@ -8,6 +8,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface BetsRepository extends JpaRepository<Bet, BetId> {
-    List<Bet> getAllByUserProfile_UserName(String userName);
+    List<Bet> getAllByUserProfile_Email(String email);
 
 }

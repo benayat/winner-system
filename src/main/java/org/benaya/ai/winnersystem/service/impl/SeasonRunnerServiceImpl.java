@@ -32,6 +32,8 @@ public class SeasonRunnerServiceImpl implements SeasonRunnerService {
     private int numberOfRoundsPerSeason;
     @Value("${game.number_of_goal_events_per_game}")
     private int numberOfGoalEventsPerGame;
+    @Value("${game.length}")
+    private int matchLengthInSeconds;
     @Value("#{${game.length}/${game.number_of_goal_events_per_game}}")
     private long oneGoalEventTimeInSeconds;
     @Value("${game.break_between_periods_in_seconds}")
@@ -47,15 +49,18 @@ public class SeasonRunnerServiceImpl implements SeasonRunnerService {
     public void startSeason() {
         try {
             applicationEventPublisher.publishEvent(new SeasonEvent(true));
+//            applicationEventPublisher.publishEvent(new SeasonEvent(true));
             Set<List<Match>> allMatchups = resultsGeneratorService.generateMatchUps();
             for (List<Match> period : allMatchups) {
                 runOnePeriod(period);
                 applicationEventPublisher.publishEvent(new MatchEndedEvent());
+//                applicationEventPublisher.publishEvent(new MatchEndedEvent());
             }
         } catch (InterruptedException e) {
             log.error("Error in timer stream", e);
         } finally {
             applicationEventPublisher.publishEvent(new SeasonEvent(false));
+//            applicationEventPublisher.publishEvent(new SeasonEvent(false));
         }
     }
 
@@ -63,15 +68,19 @@ public class SeasonRunnerServiceImpl implements SeasonRunnerService {
         List<MatchChances> chancesList = resultsGeneratorService.getMatchesChancesForPeriod(matchesList);
         log.info("in runOnePeriod method, Starting period");
         applicationEventPublisher.publishEvent(new PeriodBreakEvent(false, chancesList));
+//        applicationEventPublisher.publishEvent(new PeriodBreakEvent(false, chancesList));
         Thread.sleep(Duration.ofSeconds(breakBetweenPeriodsInSeconds));
         applicationEventPublisher.publishEvent(new PeriodBreakEvent(true));
+//        applicationEventPublisher.publishEvent(new PeriodBreakEvent(true));
         applicationEventPublisher.publishEvent(new MatchStartedEvent(matchesList));
+//        applicationEventPublisher.publishEvent(new MatchStartedEvent(matchesList));
         ConcurrentHashMap<Match, List<MatchResults>> matchToListOfTempResults = resultsGeneratorService.getResultsForAllGoalEventsInPeriod(matchesList, numberOfGoalEventsPerGame);
+        List<Map<Match, MatchResults>> allTempResults = new ArrayList<>();
         for (int i = 0; i < numberOfGoalEventsPerGame; i++) {
-            Map<Match, MatchResults> tempResults = getTempResultsForOneGoalEvent(matchToListOfTempResults, i);
-            applicationEventPublisher.publishEvent(new GoalCycleEvent(tempResults));
-            Thread.sleep(Duration.ofSeconds(oneGoalEventTimeInSeconds));
+            allTempResults.add(i, getTempResultsForOneGoalEvent(matchToListOfTempResults, i));
         }
+        applicationEventPublisher.publishEvent(new GoalCyclesForPeriodEvent(allTempResults));
+        Thread.sleep(Duration.ofSeconds(matchLengthInSeconds));
         Map<Match, MatchResults> finalResults = resultsGeneratorService.getFinalResultsFromAllGoalResults(matchToListOfTempResults);
         resultsGeneratorService.handlePeriodResults(finalResults, chancesList);
     }

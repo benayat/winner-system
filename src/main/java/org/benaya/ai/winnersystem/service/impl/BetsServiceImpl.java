@@ -22,8 +22,8 @@ public class BetsServiceImpl implements BetsService {
     private final BetsRepository betsRepository;
     private final CacheManager cacheManager;
     private final UserProfileService userProfileService;
-    public List<Bet> getAllBetsByUserName(String userName) {
-        return betsRepository.getAllByUserProfile_UserName(userName);
+    public List<Bet> getAllBetsByUserName(String email) {
+        return betsRepository.getAllByUserProfile_Email(email);
     }
     @Transactional
     public void placeBets(String email, List<ClientBetDto> bets) {
