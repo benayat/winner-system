@@ -15,7 +15,7 @@ please refer the relevant md files for more information on the projects architec
 - install and open postgres, using postgres user, and initialize `mydb` database, with 1-6 password.
 - clone the [repo](https://github.com/benayat/winner-system.git).
 - run `./mvnw clean package -DskipTests` && `./mvnw spring-boot:run`.
-- - clone the [ui repo](https://github.com/benayat/winner-system-ui.git), and inside run `npm install` and `npm start`.
+- clone the [ui repo](https://github.com/benayat/winner-system-ui.git), and inside run `npm install` and `npm start`.
 
 2. using docker:
 - clone the [ui repo](https://github.com/benayat/winner-system-ui.git) and follow the instructions in the README to build a docker image.
