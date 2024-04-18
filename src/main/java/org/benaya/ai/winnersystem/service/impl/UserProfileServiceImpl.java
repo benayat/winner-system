@@ -37,6 +37,11 @@ public class UserProfileServiceImpl implements UserProfileService {
         return userProfileRepository.save(currentSavedUser);
     }
 
+    public void updatePassword(String email, String newPassword) {
+        UserProfile currentSavedUser = userProfileRepository.findByEmail(email).orElseThrow();
+        currentSavedUser.setPassword(newPassword);
+        userProfileRepository.save(currentSavedUser);
+    }
 
     public void handleSideEffectsForUserBets(int betsAmount, UserProfile userProfile) {
         if (!userProfile.getBets().isEmpty()) {

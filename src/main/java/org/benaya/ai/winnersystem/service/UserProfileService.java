@@ -12,6 +12,7 @@ public interface UserProfileService {
     UserProfile createUserProfile(UserProfile userProfile);
     UserProfile updateEmail(String email, String newEmail);
     UserProfile updateUserName(String email, String newUserName);
+    void updatePassword(String email, String newPassword);
     void deleteUserProfile(String email);
     void handleSideEffectsForUserBets(int betsAmount, UserProfile userProfile);
     List<UserProfile> getAllByBets_BetId_Team1NameAndBets_BetId_Team2NameAndWinnerName(String team1Name, String team2Name, Winner winner);
