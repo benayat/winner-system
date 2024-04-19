@@ -51,7 +51,7 @@ public class SseEventsListener {
             int finalI = i;
             Callable<Void> task = () -> {
                 sseSchedulerService.queueSseMessage(new TimerEvent(finalI, Units.MINUTES));
-                if(finalI % numberOfGoalEventsPerGame == 0 && iterator.hasNext()) {
+                if(finalI % (MATCH_TIME_IN_MINUTES/numberOfGoalEventsPerGame) == 0 && iterator.hasNext()) {
                     sseSchedulerService.queueSseMessage(iterator.next());
                 }
                 return null;

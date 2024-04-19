@@ -13,12 +13,10 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class UserProfileAspect {
-
     private final PasswordEncoder passwordEncoder;
     @Pointcut("execution(* org.benaya.ai.winnersystem.controller.UserController.createUser(..))")
     public void createUserPointcut() {
     }
-
     @Around("createUserPointcut()")
     public Object aroundCreateUser(ProceedingJoinPoint joinPoint) throws Throwable {
         UserProfile userProfile = (UserProfile) joinPoint.getArgs()[0];

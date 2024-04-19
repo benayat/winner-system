@@ -18,6 +18,9 @@ import org.springframework.stereotype.Service;
 import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+
+import static org.benaya.ai.winnersystem.constant.MatchConstants.BREAK_TIME_IN_SECONDS;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -30,8 +33,6 @@ public class SeasonRunnerServiceImpl implements SeasonRunnerService {
     private int numberOfGoalEventsPerGame;
     @Value("${game.length}")
     private int matchLengthInSeconds;
-    @Value("${game.break_between_periods_in_seconds}")
-    private long breakBetweenPeriodsInSeconds;
     @Override
     public boolean isSeasonActive() {
         Cache.ValueWrapper activeWrapper = Objects.requireNonNull(cacheManager.getCache("seasonCache")).get("active");
@@ -57,7 +58,7 @@ public class SeasonRunnerServiceImpl implements SeasonRunnerService {
         List<MatchChances> chancesList = resultsGeneratorService.getMatchesChancesForPeriod(matchesList);
         log.info("in runOnePeriod method, Starting period");
         applicationEventPublisher.publishEvent(new PeriodBreakEvent(false, chancesList));
-        Thread.sleep(Duration.ofSeconds(breakBetweenPeriodsInSeconds));
+        Thread.sleep(Duration.ofSeconds(BREAK_TIME_IN_SECONDS));
         applicationEventPublisher.publishEvent(new PeriodBreakEvent(true));
         applicationEventPublisher.publishEvent(new MatchStartedEvent(matchesList));
         ConcurrentHashMap<Match, List<MatchResults>> matchToListOfTempResults = resultsGeneratorService.getResultsForAllGoalEventsInPeriod(matchesList, numberOfGoalEventsPerGame);

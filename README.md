@@ -21,3 +21,6 @@ please refer the relevant md files for more information on the projects architec
 - clone the [ui repo](https://github.com/benayat/winner-system-ui.git) and follow the instructions in the README to build a docker image.
 - update the docker-compose.yml file with the correct UI image name.
 - run `docker-compose up`, and when it's ready, go to localhost:3000 in the browser.
+
+### Customization:
+- to change the match length, logging level of key classes, or customize other properties, update the `application.yml`, or relevant env vars in `docker-compose.yml`, or constants package classes.
