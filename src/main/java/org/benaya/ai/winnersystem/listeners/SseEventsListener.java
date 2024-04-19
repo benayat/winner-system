@@ -47,7 +47,7 @@ public class SseEventsListener {
         log.info("Goal Cycles For Period Event");
         List<GoalCycleEvent> allEvents = goalCyclesForPeriodEvent.getAllTempResultsForPeriod().stream().map(GoalCycleEvent::new).toList();
         ListIterator<GoalCycleEvent> iterator = allEvents.listIterator();
-        for (int i = 0; i < MATCH_TIME_IN_MINUTES; i++) {
+        for (int i = 0; i <= MATCH_TIME_IN_MINUTES; i++) {
             int finalI = i;
             Callable<Void> task = () -> {
                 sseSchedulerService.queueSseMessage(new TimerEvent(finalI, Units.MINUTES));

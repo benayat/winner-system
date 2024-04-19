@@ -6,7 +6,8 @@ services:
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres_db:5432/mydb
       - UI_URL=UI:3000
-      - SPRING_JPA_HIBERNATE_DDL-AUTO=validate
+      - SPRING_JPA_HIBERNATE_DDL-AUTO=update
+      - LOGGING_LEVEL=INFO
     restart: "on-failure"
     ports:
       - "8080:8080"
@@ -30,7 +31,7 @@ services:
       - POSTGRES_DB=mydb
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready", "-d", "mydb" ]
-      interval: 30s
+      interval: 10s
       timeout: 60s
       retries: 5
       start_period: 80s
