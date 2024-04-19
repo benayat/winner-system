@@ -1,13 +1,10 @@
 package org.benaya.ai.winnersystem.service;
-
 import org.benaya.ai.winnersystem.model.UserProfile;
 import org.benaya.ai.winnersystem.model.Winner;
 
 import java.util.List;
 import java.util.Optional;
-
 public interface UserProfileService {
-
     Optional<UserProfile> getUserProfileByEmail(String email);
     UserProfile createUserProfile(UserProfile userProfile);
     UserProfile updateEmail(String email, String newEmail);

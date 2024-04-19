@@ -1,5 +1,4 @@
 package org.benaya.ai.winnersystem.service;
-
 import org.benaya.ai.winnersystem.model.Match;
 import org.benaya.ai.winnersystem.model.MatchChances;
 import org.benaya.ai.winnersystem.model.MatchResults;
@@ -9,7 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-
 public interface ResultsGeneratorService {
     Set<List<Match>> generateMatchUps();
     List<MatchChances> getMatchesChancesForPeriod(List<Match> period);

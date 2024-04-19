@@ -1,5 +1,4 @@
 package org.benaya.ai.winnersystem.service.impl;
-
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.benaya.ai.winnersystem.exception.BetsAreBlockedException;
@@ -15,7 +14,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Objects;
-
 @Service
 @RequiredArgsConstructor
 public class BetsServiceImpl implements BetsService {
@@ -37,7 +35,6 @@ public class BetsServiceImpl implements BetsService {
         userProfileService.handleSideEffectsForUserBets(betsAmount, userProfile);
         betsRepository.saveAll(betsToSend);
     }
-
     public void deleteAllBets() {
         betsRepository.deleteAll();
     }

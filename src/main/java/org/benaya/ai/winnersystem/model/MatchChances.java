@@ -1,11 +1,9 @@
 package org.benaya.ai.winnersystem.model;
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
 @Entity
 @NoArgsConstructor
 @Setter
@@ -18,7 +16,6 @@ public class MatchChances {
     int team1Chances;
     int team2Chances;
     int tieChances;
-
     public MatchChances(String team1Name, String team2Name, int team1Chances, int team2Chances) {
         this.team1Name = team1Name;
         this.team2Name = team2Name;

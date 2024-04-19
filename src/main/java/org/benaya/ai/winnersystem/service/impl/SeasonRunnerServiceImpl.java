@@ -1,5 +1,4 @@
 package org.benaya.ai.winnersystem.service.impl;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.benaya.ai.winnersystem.model.Match;
@@ -19,7 +18,6 @@ import org.springframework.stereotype.Service;
 import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -28,39 +26,30 @@ public class SeasonRunnerServiceImpl implements SeasonRunnerService {
     private final CacheManager cacheManager;
     private final ApplicationEventPublisher applicationEventPublisher;
     private final ResultsGeneratorService resultsGeneratorService;
-    @Value("#{${game.num_teams}-1}")
-    private int numberOfRoundsPerSeason;
     @Value("${game.number_of_goal_events_per_game}")
     private int numberOfGoalEventsPerGame;
     @Value("${game.length}")
     private int matchLengthInSeconds;
-    @Value("#{${game.length}/${game.number_of_goal_events_per_game}}")
-    private long oneGoalEventTimeInSeconds;
     @Value("${game.break_between_periods_in_seconds}")
     private long breakBetweenPeriodsInSeconds;
-
     @Override
     public boolean isSeasonActive() {
         Cache.ValueWrapper activeWrapper = Objects.requireNonNull(cacheManager.getCache("seasonCache")).get("active");
         return Objects.equals(activeWrapper != null ? activeWrapper.get() : null, Boolean.TRUE);
     }
-
     @Async
     public void startSeason() {
         try {
             applicationEventPublisher.publishEvent(new SeasonEvent(true));
-//            applicationEventPublisher.publishEvent(new SeasonEvent(true));
             Set<List<Match>> allMatchups = resultsGeneratorService.generateMatchUps();
             for (List<Match> period : allMatchups) {
                 runOnePeriod(period);
                 applicationEventPublisher.publishEvent(new MatchEndedEvent());
-//                applicationEventPublisher.publishEvent(new MatchEndedEvent());
             }
         } catch (InterruptedException e) {
             log.error("Error in timer stream", e);
         } finally {
             applicationEventPublisher.publishEvent(new SeasonEvent(false));
-//            applicationEventPublisher.publishEvent(new SeasonEvent(false));
         }
     }
 
@@ -68,12 +57,9 @@ public class SeasonRunnerServiceImpl implements SeasonRunnerService {
         List<MatchChances> chancesList = resultsGeneratorService.getMatchesChancesForPeriod(matchesList);
         log.info("in runOnePeriod method, Starting period");
         applicationEventPublisher.publishEvent(new PeriodBreakEvent(false, chancesList));
-//        applicationEventPublisher.publishEvent(new PeriodBreakEvent(false, chancesList));
         Thread.sleep(Duration.ofSeconds(breakBetweenPeriodsInSeconds));
         applicationEventPublisher.publishEvent(new PeriodBreakEvent(true));
-//        applicationEventPublisher.publishEvent(new PeriodBreakEvent(true));
         applicationEventPublisher.publishEvent(new MatchStartedEvent(matchesList));
-//        applicationEventPublisher.publishEvent(new MatchStartedEvent(matchesList));
         ConcurrentHashMap<Match, List<MatchResults>> matchToListOfTempResults = resultsGeneratorService.getResultsForAllGoalEventsInPeriod(matchesList, numberOfGoalEventsPerGame);
         List<Map<Match, MatchResults>> allTempResults = new ArrayList<>();
         for (int i = 0; i < numberOfGoalEventsPerGame; i++) {
@@ -84,7 +70,6 @@ public class SeasonRunnerServiceImpl implements SeasonRunnerService {
         Map<Match, MatchResults> finalResults = resultsGeneratorService.getFinalResultsFromAllGoalResults(matchToListOfTempResults);
         resultsGeneratorService.handlePeriodResults(finalResults, chancesList);
     }
-
     private Map<Match, MatchResults> getTempResultsForOneGoalEvent(ConcurrentHashMap<Match, List<MatchResults>> matchToListOfTempResults, int index) {
         Map<Match, MatchResults> tempResults = new HashMap<>();
         matchToListOfTempResults.forEach((k, v) -> tempResults.put(k, v.get(index)));

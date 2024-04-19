@@ -1,12 +1,9 @@
 package org.benaya.ai.winnersystem.validate.annotations;
-
-
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
 import org.benaya.ai.winnersystem.validate.validators.PasswordValidator;
 
 import java.lang.annotation.*;
-
 @Documented
 @Constraint(validatedBy = PasswordValidator.class)
 @Target({ElementType.PARAMETER, ElementType.METHOD, ElementType.FIELD})

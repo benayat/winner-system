@@ -1,5 +1,4 @@
 package org.benaya.ai.winnersystem.service.impl;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.benaya.ai.winnersystem.model.*;
@@ -13,18 +12,14 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.random.RandomGenerator;
 
 import static org.benaya.ai.winnersystem.constant.FormulaConstants.*;
-
 @Service
 @Slf4j
 @RequiredArgsConstructor
 public class ResultsGeneratorServiceImpl implements ResultsGeneratorService {
-
     private final TeamServiceImpl teamService;
     private final RandomGenerator randomGenerator = RandomGenerator.getDefault();
     private final UserProfileService userProfileService;
     private final BetsService betsService;
-
-
     public Set<List<Match>> generateMatchUps() {
         List<Team> teams = new ArrayList<>(teamService.findAllTeams());
         int numberOfTeams = teams.size();
@@ -81,7 +76,6 @@ public class ResultsGeneratorServiceImpl implements ResultsGeneratorService {
         }
         return matchToResults;
     }
-
     public Map<Match, MatchResults> getFinalResultsFromAllGoalResults(Map<Match, List<MatchResults>> matchToListOfGoalResults) {
         Map<Match, MatchResults> matchToFinalResults = new HashMap<>();
         matchToListOfGoalResults.forEach((match, goalResults) -> {
@@ -90,7 +84,6 @@ public class ResultsGeneratorServiceImpl implements ResultsGeneratorService {
         });
         return matchToFinalResults;
     }
-
     private MatchChances getMatchChances(String team1Name, String team2Name) {
         log.debug("calculating match chances for " + team1Name + " vs " + team2Name);
         float team1GoalProbability = calculateGoalProbability(team1Name);
@@ -100,8 +93,6 @@ public class ResultsGeneratorServiceImpl implements ResultsGeneratorService {
         team2GoalProbability = 0.9f * team2GoalProbability / totalProbability;
         return new MatchChances(team1Name, team2Name, (int) (team1GoalProbability * 100), (int) (team2GoalProbability * 100));
     }
-
-
     private float calculateGoalProbability(String teamName) {
         Team team = teamService.findTeamByName(teamName);
         float probability = BASE_PROBABILITY + team.getSkillLevel() * SKILL_PROBABILITY_MODIFIER_STEP;
@@ -115,19 +106,16 @@ public class ResultsGeneratorServiceImpl implements ResultsGeneratorService {
             return 0.9f;
         }
     }
-
     private Scorer generateGoalByProbability(String team1Name, String team2Name) {
         float team1Probability = calculateGoalProbability(team1Name);
         float team2Probability = calculateGoalProbability(team2Name);
         float randomValue = randomGenerator.nextFloat();
-
         if (randomValue <= team1Probability) {
             return Scorer.TEAM1;
         } else if (randomValue <= team1Probability + team2Probability) {
             return Scorer.TEAM2;
         } else return Scorer.NONE;
     }
-
     //    handling period results - setting parameters for each team at the end, and sending relevant results to UI if needed.
     public void handlePeriodResults
     (Map<Match, MatchResults> matchToResults, List<MatchChances> matchesChances) {
@@ -175,12 +163,10 @@ public class ResultsGeneratorServiceImpl implements ResultsGeneratorService {
         });
         betsService.deleteAllBets();
     }
-
     public List<MatchChances> getMatchChancesByUserBets(String userEmail) {
         List<Bet> userBets = betsService.getAllBetsByUserName(userEmail);
         log.info("bets for user: " + userEmail + " are: " + userBets);
         return userBets.stream().map(bet -> getMatchChances(bet.getBetId().getTeam1Name(), bet.getBetId().getTeam2Name())).toList();
     }
-
 }
 

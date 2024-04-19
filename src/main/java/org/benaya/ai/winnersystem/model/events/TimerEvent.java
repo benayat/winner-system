@@ -1,10 +1,8 @@
 package org.benaya.ai.winnersystem.model.events;
-
 import lombok.Getter;
 import lombok.Setter;
 
 import static org.benaya.ai.winnersystem.constant.MatchConstants.BREAK_TIME_IN_SECONDS;
-
 @Getter
 @Setter
 public class TimerEvent extends SseEvent {
@@ -12,7 +10,6 @@ public class TimerEvent extends SseEvent {
     private Units units;
     private TimerType timerType;
     String message;
-
     public TimerEvent(int value, Units units) {
         super(EventType.TIMER_EVENT);
         this.value = value;

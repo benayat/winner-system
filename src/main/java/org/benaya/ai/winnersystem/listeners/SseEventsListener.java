@@ -1,13 +1,12 @@
 package org.benaya.ai.winnersystem.listeners;
 
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.benaya.ai.winnersystem.model.events.*;
 import org.benaya.ai.winnersystem.service.SseSchedulerService;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.CacheManager;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
@@ -22,18 +21,16 @@ import java.util.concurrent.TimeUnit;
 
 import static org.benaya.ai.winnersystem.constant.MatchConstants.BREAK_TIME_IN_SECONDS;
 import static org.benaya.ai.winnersystem.constant.MatchConstants.MATCH_TIME_IN_MINUTES;
-
-
 @Component
 @RequiredArgsConstructor
 @Slf4j
 public class SseEventsListener {
-
     private final SseSchedulerService sseSchedulerService;
     private final CacheManager cacheManager;
     @Qualifier("blockingExecutor")
     private final ScheduledExecutorService scheduledExecutorService;
-
+    @Value("${game.number_of_goal_events_per_game}")
+    private int numberOfGoalEventsPerGame;
     @EventListener(value = PeriodBreakEvent.class)
     @Async
     public void onPeriodBreakEvent(PeriodBreakEvent periodBreakEvent) {
@@ -54,7 +51,7 @@ public class SseEventsListener {
             int finalI = i;
             Callable<Void> task = () -> {
                 sseSchedulerService.queueSseMessage(new TimerEvent(finalI, Units.MINUTES));
-                if(finalI % 9 == 0 && iterator.hasNext()) {
+                if(finalI % numberOfGoalEventsPerGame == 0 && iterator.hasNext()) {
                     sseSchedulerService.queueSseMessage(iterator.next());
                 }
                 return null;
@@ -67,9 +64,6 @@ public class SseEventsListener {
             }
         }
     }
-
-
-
     @Async
     public void runTimerEvents(int numEvents, int delayTime, Units units, TimeUnit timeUnit) {
         for (int i = 0; i <= numEvents; i++) {
@@ -86,7 +80,6 @@ public class SseEventsListener {
             }
         }
     }
-
     @EventListener(classes = {SseEvent.class, PeriodBreakEvent.class})
     @Async
     public void onSseEvent(SseEvent sseEvent) {

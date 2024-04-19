@@ -1,8 +1,6 @@
 package org.benaya.ai.winnersystem.model.events;
-
 import lombok.Getter;
 import lombok.Setter;
-
 @Getter
 @Setter
 public class MatchEndedEvent extends SseEvent {
