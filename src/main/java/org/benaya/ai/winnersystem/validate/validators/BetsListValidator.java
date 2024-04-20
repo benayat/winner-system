@@ -12,6 +12,7 @@ public class BetsListValidator implements ConstraintValidator<ValidBetsList, Lis
     public boolean isValid(List<ClientBetDto> clientBets, ConstraintValidatorContext constraintValidatorContext) {
         return !clientBets.isEmpty();
     }
+
     @Override
     public void initialize(ValidBetsList constraintAnnotation) {
     }

@@ -1,4 +1,5 @@
 package org.benaya.ai.winnersystem.service.impl;
+
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -10,6 +11,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.util.concurrent.ConcurrentLinkedQueue;
+
 @Service
 @Getter
 @Slf4j
@@ -18,10 +20,12 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 public class SseSchedulerServiceImpl implements SseSchedulerService {
     private final SseFactory sseFactory;
     private final ConcurrentLinkedQueue<SseEvent> events = new ConcurrentLinkedQueue<>();
+
     @Override
     public synchronized void queueSseMessage(SseEvent sseEvent) {
         events.add(sseEvent);
     }
+
     @Scheduled(fixedDelay = 330)
     public void sendEvents() {
         SseEvent event;

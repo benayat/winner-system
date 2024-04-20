@@ -1,7 +1,9 @@
 package org.benaya.ai.winnersystem.model.dto;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.benaya.ai.winnersystem.model.Winner;
+
 @Data
 @AllArgsConstructor
 public class ClientBetDto {

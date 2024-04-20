@@ -1,4 +1,5 @@
 package org.benaya.ai.winnersystem.service.impl;
+
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.benaya.ai.winnersystem.exception.BetsAreBlockedException;
@@ -14,15 +15,18 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Objects;
+
 @Service
 @RequiredArgsConstructor
 public class BetsServiceImpl implements BetsService {
     private final BetsRepository betsRepository;
     private final CacheManager cacheManager;
     private final UserProfileService userProfileService;
+
     public List<Bet> getAllBetsByUserName(String email) {
         return betsRepository.getAllByUserProfile_Email(email);
     }
+
     @Transactional
     public void placeBets(String email, List<ClientBetDto> bets) {
         Cache blockCache = cacheManager.getCache("betsControllerBlockCache");
@@ -35,6 +39,7 @@ public class BetsServiceImpl implements BetsService {
         userProfileService.handleSideEffectsForUserBets(betsAmount, userProfile);
         betsRepository.saveAll(betsToSend);
     }
+
     public void deleteAllBets() {
         betsRepository.deleteAll();
     }

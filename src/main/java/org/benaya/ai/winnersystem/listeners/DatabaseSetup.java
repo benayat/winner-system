@@ -31,6 +31,7 @@ public class DatabaseSetup {
     private String csvFilePath;
     private final RandomGenerator randomGenerator = RandomGenerator.getDefault();
     private final TeamService teamService;
+
     @EventListener
     public void loadTeamsData(ContextRefreshedEvent event) {
         // Load teams data from csv file

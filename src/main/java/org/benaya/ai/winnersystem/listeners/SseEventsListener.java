@@ -21,6 +21,7 @@ import java.util.concurrent.TimeUnit;
 
 import static org.benaya.ai.winnersystem.constant.MatchConstants.BREAK_TIME_IN_SECONDS;
 import static org.benaya.ai.winnersystem.constant.MatchConstants.MATCH_TIME_IN_MINUTES;
+
 @Component
 @RequiredArgsConstructor
 @Slf4j
@@ -31,6 +32,7 @@ public class SseEventsListener {
     private final ScheduledExecutorService scheduledExecutorService;
     @Value("${game.number_of_goal_events_per_game}")
     private int numberOfGoalEventsPerGame;
+
     @EventListener(value = PeriodBreakEvent.class)
     @Async
     public void onPeriodBreakEvent(PeriodBreakEvent periodBreakEvent) {
@@ -41,6 +43,7 @@ public class SseEventsListener {
             runTimerEvents(BREAK_TIME_IN_SECONDS, 1, Units.SECONDS, TimeUnit.SECONDS);
         }
     }
+
     @EventListener(value = GoalCyclesForPeriodEvent.class)
     @Async
     public void onGoalCyclesForPeriodEvent(GoalCyclesForPeriodEvent goalCyclesForPeriodEvent) {
@@ -51,7 +54,7 @@ public class SseEventsListener {
             int finalI = i;
             Callable<Void> task = () -> {
                 sseSchedulerService.queueSseMessage(new TimerEvent(finalI, Units.MINUTES));
-                if(finalI % (MATCH_TIME_IN_MINUTES/numberOfGoalEventsPerGame) == 0 && iterator.hasNext()) {
+                if (finalI % (MATCH_TIME_IN_MINUTES / numberOfGoalEventsPerGame) == 0 && iterator.hasNext()) {
                     sseSchedulerService.queueSseMessage(iterator.next());
                 }
                 return null;
@@ -64,6 +67,7 @@ public class SseEventsListener {
             }
         }
     }
+
     @Async
     public void runTimerEvents(int numEvents, int delayTime, Units units, TimeUnit timeUnit) {
         for (int i = 0; i <= numEvents; i++) {
@@ -80,6 +84,7 @@ public class SseEventsListener {
             }
         }
     }
+
     @EventListener(classes = {SseEvent.class, PeriodBreakEvent.class})
     @Async
     public void onSseEvent(SseEvent sseEvent) {

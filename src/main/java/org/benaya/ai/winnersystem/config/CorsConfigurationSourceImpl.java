@@ -10,10 +10,10 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import java.util.List;
 
 @Configuration
-public class CorsConfigurationSourceImpl implements CorsConfigurationSource{
-
+public class CorsConfigurationSourceImpl implements CorsConfigurationSource {
     @Value("${UI.url}")
     private String uiUrl;
+
     @Override
     public CorsConfiguration getCorsConfiguration(@NonNull HttpServletRequest request) {
         CorsConfiguration corsConfiguration = new CorsConfiguration();

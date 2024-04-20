@@ -1,4 +1,5 @@
 package org.benaya.ai.winnersystem.model;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
@@ -6,6 +7,7 @@ import lombok.Data;
 import org.benaya.ai.winnersystem.validate.annotations.ValidPassword;
 
 import java.util.List;
+
 @Entity
 @Data
 public class UserProfile {

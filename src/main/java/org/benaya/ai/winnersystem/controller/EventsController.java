@@ -17,14 +17,17 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 @Slf4j
 public class EventsController {
     private final SseFactory sseFactory;
+
     @GetMapping(value = "/bets", produces = "text/event-stream")
-    public SseEmitter getSecureEvents(@AuthenticationPrincipal(errorOnInvalidType = true)User user) {
+    public SseEmitter getSecureEvents(@AuthenticationPrincipal(errorOnInvalidType = true) User user) {
         return sseFactory.getSecureEmitter(user.getUsername());
     }
+
     @GetMapping(value = "/round", produces = "text/event-stream")
     public SseEmitter getRoundEvents(HttpServletRequest request) {
         return sseFactory.getSimpleEmitter(request.getRemoteAddr());
     }
+
     @GetMapping("/num-emitters")
     public int getNumEmitters() {
         return sseFactory.getSimpleEmitters().size();

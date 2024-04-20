@@ -1,4 +1,5 @@
 package org.benaya.ai.winnersystem.service.impl;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.benaya.ai.winnersystem.model.Match;
@@ -33,11 +34,13 @@ public class SeasonRunnerServiceImpl implements SeasonRunnerService {
     private int numberOfGoalEventsPerGame;
     @Value("${game.length}")
     private int matchLengthInSeconds;
+
     @Override
     public boolean isSeasonActive() {
         Cache.ValueWrapper activeWrapper = Objects.requireNonNull(cacheManager.getCache("seasonCache")).get("active");
         return Objects.equals(activeWrapper != null ? activeWrapper.get() : null, Boolean.TRUE);
     }
+
     @Async
     public void startSeason() {
         try {
@@ -71,6 +74,7 @@ public class SeasonRunnerServiceImpl implements SeasonRunnerService {
         Map<Match, MatchResults> finalResults = resultsGeneratorService.getFinalResultsFromAllGoalResults(matchToListOfTempResults);
         resultsGeneratorService.handlePeriodResults(finalResults, chancesList);
     }
+
     private Map<Match, MatchResults> getTempResultsForOneGoalEvent(ConcurrentHashMap<Match, List<MatchResults>> matchToListOfTempResults, int index) {
         Map<Match, MatchResults> tempResults = new HashMap<>();
         matchToListOfTempResults.forEach((k, v) -> tempResults.put(k, v.get(index)));

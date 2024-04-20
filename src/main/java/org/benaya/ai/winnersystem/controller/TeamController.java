@@ -12,10 +12,12 @@ import java.util.List;
 @RequestMapping("/api/team")
 public class TeamController {
     private final TeamService teamService;
+
     @GetMapping("/all")
     public List<Team> getAllTeams() {
         return teamService.findAllTeams();
     }
+
     @GetMapping("/sorted")
     public List<Team> getAllTeamsSortedByPointsDescGoalsDescName() {
         return teamService.getAllTeamsSortedByPointsDescGoalsDescName();
