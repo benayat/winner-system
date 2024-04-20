@@ -1,4 +1,5 @@
 package org.benaya.ai.winnersystem.service.impl;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.benaya.ai.winnersystem.model.*;
@@ -117,6 +118,7 @@ public class ResultsGeneratorServiceImpl implements ResultsGeneratorService {
         } else return Scorer.NONE;
     }
     //    handling period results - setting parameters for each team at the end, and sending relevant results to UI if needed.
+    @Transactional
     public void handlePeriodResults
     (Map<Match, MatchResults> matchToResults, List<MatchChances> matchesChances) {
         log.debug("handling period results");
