@@ -93,9 +93,12 @@ public class ResultsGeneratorServiceImpl implements ResultsGeneratorService {
         float team1GoalProbability = calculateGoalProbability(team1Name);
         float team2GoalProbability = calculateGoalProbability(team2Name);
         float totalProbability = team1GoalProbability + team2GoalProbability;
-        team1GoalProbability = 0.9f * team1GoalProbability / totalProbability;
-        team2GoalProbability = 0.9f * team2GoalProbability / totalProbability;
+        if(totalProbability > 1) {
+            team1GoalProbability = 0.9f * team1GoalProbability / totalProbability;
+            team2GoalProbability = 0.9f * team2GoalProbability / totalProbability;
+        }
         return new MatchChances(team1Name, team2Name, (int) (team1GoalProbability * 100), (int) (team2GoalProbability * 100));
+
     }
 
     private float calculateGoalProbability(String teamName) {
