@@ -49,7 +49,7 @@ public class DatabaseSetup {
                         .name(csvRecord.get("Name"))
                         .goals(0)
                         .points(0)
-                        .skillLevel(randomGenerator.nextInt(1, 10))
+                        .skillLevel(randomGenerator.nextInt(1, 4))
                         .injuries(randomGenerator.nextInt(0, 3))
                         .build();
                 tempTeamsList.add(client);
